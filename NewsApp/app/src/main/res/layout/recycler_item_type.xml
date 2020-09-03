@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="20dp">
+
+    <TextView
+        android:id="@+id/newsListTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:text="你没有看错!8天长假赴韩中国团体游客数量为0"
+        android:ellipsize="end"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp">
+
+        <TextView
+            android:id="@+id/newsListTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2019-09-24" />
+
+        <TextView
+            android:id="@+id/newsListLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/newsListTime"
+            android:text="English" />
+
+        <TextView
+            android:id="@+id/newsListType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/newsListLanguage"
+            android:text="News" />
+
+        <TextView
+            android:id="@+id/newsListOrigin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/newsListType"
+            android:text="Hunan" />
+
+
+    </RelativeLayout>
+
+</LinearLayout>
