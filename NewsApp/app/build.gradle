@@ -35,4 +35,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'in.srain.cube:ultra-ptr:1.0.11'
     implementation 'com.alibaba:fastjson:1.1.72.android'
+    implementation 'com.wang.avi:library:2.1.3'
 }

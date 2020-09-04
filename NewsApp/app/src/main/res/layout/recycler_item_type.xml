@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginBottom="20dp">
+    android:layout_marginBottom="10dp">
 
     <TextView
         android:id="@+id/newsListTitle"
@@ -16,7 +16,8 @@
         android:text="你没有看错!8天长假赴韩中国团体游客数量为0"
         android:ellipsize="end"
         android:textSize="18sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="@color/black"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

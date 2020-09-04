@@ -2,33 +2,67 @@ package com.example.newsapp;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.view.MenuItem;
 
+import com.example.newsapp.ui.dashboard.DashboardFragment;
+import com.example.newsapp.ui.home.HomeFragment;
+import com.example.newsapp.ui.notifications.NotificationsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 public class NewsList extends AppCompatActivity {
+    private Fragment currentFragment;
+    BottomNavigationView navView;
+    HomeFragment homeFragment;
+    DashboardFragment dashboardFragment;
+    NotificationsFragment notificationsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_list);
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        navView = findViewById(R.id.nav_view);
+        homeFragment = new HomeFragment();
+        dashboardFragment = new DashboardFragment();
+        notificationsFragment = new NotificationsFragment();
+        //初始化第一个fragment
+        switchFragment(homeFragment).commit();
 
+        navView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener(){
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.navigation_home:
+                        switchFragment(homeFragment).commit();
+                        break;
+                    case R.id.navigation_dashboard:
+                        switchFragment(dashboardFragment).commit();
+                        break;
+                    case R.id.navigation_notifications:
+                        switchFragment(notificationsFragment).commit();
+                        break;
+                }
+                return true;
+            }
+        });
+    }
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(navView, navController);
+    private FragmentTransaction switchFragment(Fragment targetFragment){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if(!targetFragment.isAdded()){
+            if(currentFragment!=null) {
+                transaction.hide(currentFragment);
+            }
+            transaction.add(R.id.frag_container, targetFragment);
+        }else{
+            transaction.hide(currentFragment).show(targetFragment);
+        }
+        currentFragment = targetFragment;
+        return transaction;
     }
 }

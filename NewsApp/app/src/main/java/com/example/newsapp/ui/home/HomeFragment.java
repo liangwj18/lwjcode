@@ -1,6 +1,7 @@
 package com.example.newsapp.ui.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,18 +9,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.example.newsapp.NewsDetailActivity;
 import com.example.newsapp.R;
 
 import java.util.ArrayList;
@@ -27,7 +33,7 @@ import java.util.ArrayList;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.header.MaterialHeader;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements AdapterView.OnClickListener {
 
     final int INIT_NUM = 8;
     final int UPDATE_NUM = 5;
@@ -55,6 +61,7 @@ public class HomeFragment extends Fragment {
         String jsonString = JsonReader.getJson(getActivity(), "lists.json");
         jsonArray = JSONObject.parseObject(jsonString).getJSONArray("datas");
         initView();     //初始化界面
+        Log.i("CREATE", "Home Fragment");
         return root;
     }
 
@@ -81,6 +88,10 @@ public class HomeFragment extends Fragment {
 
 
     private void initView() {
+        // 设置分割线
+        DividerItemDecoration divider = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        divider.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.list_divider));
+        recyclerView.addItemDecoration(divider);
         // 首先加载一些数据(10条)
         ArrayList<NewsInfo> news = new ArrayList<>(INIT_NUM);
         for (int i = 0; i < INIT_NUM; ++i) {
@@ -91,7 +102,8 @@ public class HomeFragment extends Fragment {
         // 初始化RecyclerView
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        mAdapter = new NewsAdapter(news);
+        // 构建一个监听器
+        mAdapter = new NewsAdapter(news, this);
         recyclerView.setAdapter(mAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -124,5 +136,15 @@ public class HomeFragment extends Fragment {
                     isScrollDown = false;
             }
         });
+    }
+
+    @Override
+    public void onClick(View view) {
+        int position = recyclerView.getChildLayoutPosition(view);
+        //只有新闻添加了监听
+        NewsInfo info = mAdapter.getPostionItem(position);
+        Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
+        intent.putExtra("id", info.id);     //传入id
+        startActivity(intent);
     }
 }

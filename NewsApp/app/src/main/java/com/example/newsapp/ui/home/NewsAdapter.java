@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import java.util.List;
 
 public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<NewsInfo> mNewsList;
+    private AdapterView.OnClickListener listener;   //点击监听器
 
     private final int newsType = 1;   //表示新闻
     private final int footerType = 2; //表示底部加载提示
@@ -26,7 +28,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     ;
     private LoadingType footerState = LoadingType.NORMAL;
 
-    static class NewsHolder extends RecyclerView.ViewHolder {
+    public static class NewsHolder extends RecyclerView.ViewHolder{
         private TextView titleTv;
         private TextView timeTv;
         private TextView langTv;
@@ -51,7 +53,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    static class FootHolder extends RecyclerView.ViewHolder {
+    public static class FootHolder extends RecyclerView.ViewHolder {
         private TextView tipsTv;
         private ProgressBar progressBar;
 
@@ -62,8 +64,9 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public NewsAdapter(List<NewsInfo> lists) {
+    public NewsAdapter(List<NewsInfo> lists, AdapterView.OnClickListener listener) {
         mNewsList = lists;
+        this.listener = listener;
     }
 
 
@@ -73,6 +76,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (viewType == newsType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.recycler_item_type, parent, false);
+            view.setOnClickListener(listener);  //绑定点击监听器
             return new NewsHolder(view);
         } else if (viewType == footerType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(
@@ -113,7 +117,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return mNewsList.size() + 1;    //有一个footer
     }
 
-    public LoadingType getFooterState(){
+    public LoadingType getFooterState() {
         return footerState;
     }
 
@@ -136,4 +140,10 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         mNewsList.addAll(newData);
         changeState(LoadingType.NORMAL);
     }
+
+    public NewsInfo getPostionItem(int position){
+        return mNewsList.get(position);
+    }
+
+
 }
