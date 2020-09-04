@@ -61,7 +61,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnClickListene
         String jsonString = JsonReader.getJson(getActivity(), "lists.json");
         jsonArray = JSONObject.parseObject(jsonString).getJSONArray("datas");
         initView();     //初始化界面
-        Log.i("CREATE", "Home Fragment");
         return root;
     }
 
@@ -72,7 +71,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnClickListene
     }
 
     //上拉加载更多时返回数据
-    private void getData() {
+    private void loadMoreData() {
         ArrayList<NewsInfo> data = null;
         if (loadedNumber < jsonArray.size()) {
             int number = Math.min(jsonArray.size() - loadedNumber, UPDATE_NUM);
@@ -103,7 +102,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnClickListene
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         // 构建一个监听器
-        mAdapter = new NewsAdapter(news, this);
+        mAdapter = new NewsAdapter(news, this, getContext());
         recyclerView.setAdapter(mAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -116,7 +115,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnClickListene
                         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                getData();
+                                loadMoreData();
                             }
                         }, 1000);
                     } else {
@@ -129,7 +128,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnClickListene
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 lastVisiableItem = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                Log.i("DY", Integer.toString(dy));
                 if (dy > 0)
                     isScrollDown = true;
                 else
@@ -142,9 +140,13 @@ public class HomeFragment extends Fragment implements AdapterView.OnClickListene
     public void onClick(View view) {
         int position = recyclerView.getChildLayoutPosition(view);
         //只有新闻添加了监听
-        NewsInfo info = mAdapter.getPostionItem(position);
+        NewsInfo info = mAdapter.getPositionItem(position);
         Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
         intent.putExtra("id", info.id);     //传入id
         startActivity(intent);
+        //颜色变灰
+        mAdapter.itemPressed(position);
+        TextView titleTv = view.findViewById(R.id.news_list_title);
+        titleTv.setTextColor(getContext().getColorStateList(R.color.grey));
     }
 }

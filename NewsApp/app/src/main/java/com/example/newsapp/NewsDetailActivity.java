@@ -8,6 +8,7 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,12 +22,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class NewsDetailActivity extends AppCompatActivity {
     AVLoadingIndicatorView loadingIndicatorView;
     TextView detailTitle, detailSource, detailTime, detailType, detailLink, detailContent;
+    ImageView influence_icon;
     LinearLayout container;
     Handler mHandler;
     DetailHelper detailHelper;
@@ -43,12 +46,11 @@ public class NewsDetailActivity extends AppCompatActivity {
         // 下面构建子线程
         String targetID = getIntent().getStringExtra("id");
         detailHelper = new DetailHelper(getString(R.string.news_detail_url) + targetID);
-        Log.i("SUBTHREAD", detailHelper.urlString);
         new Thread(detailHelper).start();
     }
 
 
-    // 内部类，用于通信
+    // 内部类，用于网络通信
     private class DetailHelper implements Runnable {
         private String urlString;
         // 下面是新闻的内容
@@ -106,20 +108,33 @@ public class NewsDetailActivity extends AppCompatActivity {
 
         // 开始解析json
         private void parseJson(JSONObject json) {
-            Log.i("JSON", json.toJSONString());
             content = json.getString("content");
             time = json.getString("time");
             type = json.getString("type");
             title = json.getString("title");
             source = json.getString("source");
+            source = (source != null) ? source : "未知来源";
             lang = json.getString("lang");
             originURL = json.getJSONArray("urls").getString(0);
         }
 
         private void updateUI() {
-            mHandler.post(new Runnable() {
+            mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    // 设置图标
+                    int randNum = new Random().nextInt(3);
+                    switch (randNum){
+                        case 0:
+                            influence_icon.setImageDrawable(getDrawable(R.drawable.circle_strong));
+                            break;
+                        case 1:
+                            influence_icon.setImageDrawable(getDrawable(R.drawable.circle_normal));
+                            break;
+                        case 2:
+                            influence_icon.setImageDrawable(getDrawable(R.drawable.circle_weak));
+                            break;
+                    }
                     detailTitle.setText(title);
                     detailSource.setText(source);
                     detailTime.setText(time);
@@ -128,10 +143,10 @@ public class NewsDetailActivity extends AppCompatActivity {
                     String html = "<a href=\"" + originURL + "\">原文链接</a>";
                     detailLink.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
                     detailLink.setMovementMethod(LinkMovementMethod.getInstance());
-                    loadingIndicatorView.smoothToHide();    //隐藏加载
+                    loadingIndicatorView.hide();    //隐藏加载
                     container.setVisibility(View.VISIBLE);  //显示内容
                 }
-            });
+            }, 500);
         }
     }
 
@@ -139,12 +154,10 @@ public class NewsDetailActivity extends AppCompatActivity {
         detailTitle = findViewById(R.id.detail_title);
         detailSource = findViewById(R.id.detail_source);
         detailTime = findViewById(R.id.detail_time);
-        ;
         detailType = findViewById(R.id.detail_type);
-        ;
         detailLink = findViewById(R.id.detail_link);
-        ;
         detailContent = findViewById(R.id.detail_content);
+        influence_icon = findViewById(R.id.influence_icon);
 
         container = findViewById(R.id.detail_content_layout);
         loadingIndicatorView = findViewById(R.id.avi);

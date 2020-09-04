@@ -6,4 +6,10 @@
     <color name="dividerGrey">#e5e5e5</color>
     <color name="black">#444</color>
     <color name="blue">#3498db</color>
+    <color name="grey">#bdc3c7</color>
+    <color name="red">#e74c3c</color>
+    <color name="yellow">#f1c40f</color>
+    <color name="orange">#e67e22</color>
+    <color name="green">#2ecc71</color>
+    <color name="white">#ecf0f1</color>
 </resources>

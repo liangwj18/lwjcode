@@ -1,6 +1,7 @@
 package com.example.newsapp.ui.home;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,21 +15,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.newsapp.R;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<NewsInfo> mNewsList;
+    private List<Boolean> pressedList;
     private AdapterView.OnClickListener listener;   //点击监听器
+    private Context context;
 
     private final int newsType = 1;   //表示新闻
     private final int footerType = 2; //表示底部加载提示
 
     enum LoadingType {NORMAL, LOADING_MORE, NO_MORE}
 
-    ;
     private LoadingType footerState = LoadingType.NORMAL;
 
-    public static class NewsHolder extends RecyclerView.ViewHolder{
+    public static class NewsHolder extends RecyclerView.ViewHolder {
         private TextView titleTv;
         private TextView timeTv;
         private TextView langTv;
@@ -37,14 +42,14 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public NewsHolder(View view) {
             super(view);
-            titleTv = view.findViewById(R.id.newsListTitle);
-            timeTv = view.findViewById(R.id.newsListTime);
-            langTv = view.findViewById(R.id.newsListLanguage);
-            typeTv = view.findViewById(R.id.newsListType);
-            originTv = view.findViewById(R.id.newsListOrigin);
+            titleTv = view.findViewById(R.id.news_list_title);
+            timeTv = view.findViewById(R.id.news_list_time);
+            langTv = view.findViewById(R.id.news_list_language);
+            typeTv = view.findViewById(R.id.news_list_type);
+            originTv = view.findViewById(R.id.news_list_origin);
         }
 
-        public void bindData(NewsInfo info) {
+        public void bindData(NewsInfo info, boolean isPressed) {
             titleTv.setText(info.title);
             timeTv.setText(info.time);
             langTv.setText(info.lang);
@@ -64,9 +69,11 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public NewsAdapter(List<NewsInfo> lists, AdapterView.OnClickListener listener) {
+    public NewsAdapter(List<NewsInfo> lists, AdapterView.OnClickListener listener, Context context) {
         mNewsList = lists;
         this.listener = listener;
+        pressedList = new ArrayList<>(Collections.nCopies(lists.size(), false));
+        this.context = context;
     }
 
 
@@ -90,7 +97,13 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof NewsHolder) {
             NewsInfo info = mNewsList.get(position);
-            ((NewsHolder) holder).bindData(info);
+            ((NewsHolder) holder).bindData(info, pressedList.get(position));
+            if (pressedList.get(position)) {
+                Log.i("PRESSED", "position = " + position+info.title.substring(0,10));
+                ((NewsHolder) holder).titleTv.setTextColor(context.getColorStateList(R.color.grey));
+            }else{
+                ((NewsHolder) holder).titleTv.setTextColor(context.getColorStateList(R.color.black));
+            }
         } else {
             FootHolder footHolder = (FootHolder) holder;
             switch (footerState) {
@@ -138,12 +151,15 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void updateData(List<NewsInfo> newData) {
         mNewsList.addAll(newData);
+        pressedList.addAll(Collections.nCopies(newData.size(), false));
         changeState(LoadingType.NORMAL);
     }
 
-    public NewsInfo getPostionItem(int position){
+    public NewsInfo getPositionItem(int position) {
         return mNewsList.get(position);
     }
 
-
+    public void itemPressed(int position) {
+        pressedList.set(position, true);
+    }
 }
