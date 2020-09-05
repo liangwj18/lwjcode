@@ -1,152 +1,90 @@
 package com.example.newsapp.ui.home;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.example.newsapp.NewsDetailActivity;
 import com.example.newsapp.R;
+import com.example.newsapp.ui.home.channel.ChannelFragment;
+import com.ogaclejapan.smarttablayout.SmartTabLayout;
+import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItem;
+import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
+import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 
-import java.util.ArrayList;
-
-import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.header.MaterialHeader;
-
-public class HomeFragment extends Fragment implements AdapterView.OnClickListener {
-
-    final int INIT_NUM = 8;
-    final int UPDATE_NUM = 5;
-
+public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
-    private PtrFrameLayout mPtrFrame;
-    private MaterialHeader materialHeader;
-    private RecyclerView recyclerView;
-    private JSONArray jsonArray;
-    private NewsAdapter mAdapter;
-    int lastVisiableItem;
-    int loadedNumber = 0;
-    boolean isLoading = false;      // 表明当前是否正在加载
-    boolean isScrollDown = false;   //表明是否正在下拉
+    private FragmentManager fragmentManager;
+    private ImageButton channelButton;
+
+    private FragmentPagerItemAdapter adapter;
+    private FragmentPagerItems pagers;
+    private SmartTabLayout pagerTab;
+    private ViewPager viewPager;
+    private ChannelFragment channelFragment;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
                 ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-
-
-        findView(root);     //初始化PtrFrame和recycleView
-        // TODO 写死到了主进程中，应该考虑让子线程去读取
-        String jsonString = JsonReader.getJson(getActivity(), "lists.json");
-        jsonArray = JSONObject.parseObject(jsonString).getJSONArray("datas");
-        initView();     //初始化界面
+        fragmentManager = getChildFragmentManager();
+        findView(root);
+        initFragment();
+        initView();
         return root;
     }
 
-    //初始化PtrFrame和recycleView
+    private void initFragment() {
+        Bundle bundleNews = new Bundle();
+        bundleNews.putString("name", "NEWS");
+        Bundle bundlePaper = new Bundle();
+        bundlePaper.putString("name", "PAPERS");
+        Bundle bundleNewTime = new Bundle();
+        bundleNewTime.putString("name", "新时代");
+        pagers = FragmentPagerItems.with(getContext())
+                .add("ALL", NewsListFragment.class)
+                .add("News", BlankFragment.class, bundleNews)
+                .add("Paper", BlankFragment.class, bundlePaper)
+                .add("NewTime", BlankFragment.class, bundleNewTime)
+                .create();
+    }
+
     private void findView(View root) {
-        mPtrFrame = root.findViewById(R.id.ptrFrameLayout);
-        recyclerView = root.findViewById(R.id.recyclerView);
+        channelButton = root.findViewById(R.id.channel_button);
+        pagerTab = root.findViewById(R.id.view_pager_tab);
+        viewPager = root.findViewById(R.id.viewpager);
     }
-
-    //上拉加载更多时返回数据
-    private void loadMoreData() {
-        ArrayList<NewsInfo> data = null;
-        if (loadedNumber < jsonArray.size()) {
-            int number = Math.min(jsonArray.size() - loadedNumber, UPDATE_NUM);
-            data = new ArrayList<>(number);
-            for (int i = 0; i < number; ++i) {
-                data.add(JsonReader.getNewsInfo(jsonArray.getJSONObject(loadedNumber)));
-                loadedNumber++;
-            }
-        }
-        mAdapter.updateData(data);
-        isLoading = false;
-    }
-
 
     private void initView() {
-        // 设置分割线
-        DividerItemDecoration divider = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-        divider.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.list_divider));
-        recyclerView.addItemDecoration(divider);
-        // 首先加载一些数据(10条)
-        ArrayList<NewsInfo> news = new ArrayList<>(INIT_NUM);
-        for (int i = 0; i < INIT_NUM; ++i) {
-            JSONObject item = jsonArray.getJSONObject(i);
-            news.add(JsonReader.getNewsInfo(item));
-            loadedNumber++;
-        }
-        // 初始化RecyclerView
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
-        recyclerView.setLayoutManager(linearLayoutManager);
-        // 构建一个监听器
-        mAdapter = new NewsAdapter(news, this, getContext());
-        recyclerView.setAdapter(mAdapter);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        // 配置好Tab、viewPager和适配器
+        adapter = new FragmentPagerItemAdapter(getChildFragmentManager(),pagers);
+        viewPager.setAdapter(adapter);
+        pagerTab.setViewPager(viewPager);
+        // 为频道按钮增加监听，添加频道选择Fragment
+        channelButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem == mAdapter.getItemCount() - 1 && !isLoading && isScrollDown) {
-                    isLoading = true;
-                    if (loadedNumber < jsonArray.size()) {
-                        mAdapter.changeState(NewsAdapter.LoadingType.LOADING_MORE);
-                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                loadMoreData();
-                            }
-                        }, 1000);
-                    } else {
-                        mAdapter.changeState(NewsAdapter.LoadingType.NO_MORE);
-                    }
+            public void onClick(View view) {
+                Log.i("CLICK", "LIST_F");
+                channelFragment = (channelFragment != null) ? channelFragment : new ChannelFragment();
+                FragmentManager manager = getParentFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
+                transaction.setCustomAnimations(R.anim.slide_in, R.anim.slide_out);
+                if (!channelFragment.isAdded()) {
+                    transaction.replace(android.R.id.content, channelFragment, "CHANNEL").commit();
+                } else {
+                    transaction.show(channelFragment).commit();
                 }
             }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                lastVisiableItem = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (dy > 0)
-                    isScrollDown = true;
-                else
-                    isScrollDown = false;
-            }
         });
-    }
-
-    @Override
-    public void onClick(View view) {
-        int position = recyclerView.getChildLayoutPosition(view);
-        //只有新闻添加了监听
-        NewsInfo info = mAdapter.getPositionItem(position);
-        Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
-        intent.putExtra("id", info.id);     //传入id
-        startActivity(intent);
-        //颜色变灰
-        mAdapter.itemPressed(position);
-        TextView titleTv = view.findViewById(R.id.news_list_title);
-        titleTv.setTextColor(getContext().getColorStateList(R.color.grey));
     }
 }

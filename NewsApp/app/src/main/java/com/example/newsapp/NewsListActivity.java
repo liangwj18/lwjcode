@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-public class NewsList extends AppCompatActivity {
+public class NewsListActivity extends AppCompatActivity {
     private Fragment currentFragment;
     BottomNavigationView navView;
     HomeFragment homeFragment;
@@ -58,7 +58,7 @@ public class NewsList extends AppCompatActivity {
             if(currentFragment!=null) {
                 transaction.hide(currentFragment);
             }
-            transaction.add(R.id.frag_container, targetFragment);
+            transaction.add(R.id.frag_container, targetFragment, "CHANNEL");
         }else{
             transaction.hide(currentFragment).show(targetFragment);
         }

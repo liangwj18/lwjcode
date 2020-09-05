@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".NewsDetailActivity"></activity>
         <activity
-            android:name=".NewsList"
+            android:name=".NewsListActivity"
             android:label="@string/title_activity_news_list" />
         <activity android:name=".MainActivity">
             <intent-filter>
