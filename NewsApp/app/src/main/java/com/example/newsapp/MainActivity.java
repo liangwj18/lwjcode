@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         newsListBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, NewsList.class);
+                Intent intent = new Intent(MainActivity.this, NewsListActivity.class);
                 startActivity(intent);
             }
         });

@@ -29,10 +29,10 @@ public class JsonReader {
         return builder.toString();
     }
 
-    public static NewsInfo getNewsInfo(JSONObject item) {
-        JSONArray geoInfo = item.getJSONArray("geoInfo");
-        String origin = geoInfo.size() > 0 ? geoInfo.getJSONObject(0).getString("originText") : "未知";
-        return new NewsInfo(item.getString("_id"), item.getString("type"), item.getString("title"),
-                item.getString("time"), item.getString("lang"), origin);
-    }
+//    public static NewsInfo getNewsInfo(JSONObject item) {
+//        JSONArray geoInfo = item.getJSONArray("geoInfo");
+//        String origin = geoInfo.size() > 0 ? geoInfo.getJSONObject(0).getString("originText") : "未知";
+//        return new NewsInfo(item.getString("_id"), item.getString("type"), item.getString("title"),
+//                item.getString("time"), item.getString("lang"), origin);
+//    }
 }
