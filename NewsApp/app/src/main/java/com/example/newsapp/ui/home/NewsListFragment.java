@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -29,6 +30,7 @@ import com.example.newsapp.NewsDetailActivity;
 import com.example.newsapp.R;
 import com.example.newsapp.ui.home.channel.ChannelFragment;
 import com.example.newsapp.utils.HttpsTrustManager;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,20 +49,23 @@ import in.srain.cube.views.ptr.header.MaterialHeader;
 
 public class NewsListFragment extends Fragment implements AdapterView.OnClickListener {
     private static final String ARG_TYPE = "type";
-    final int UPDATE_NUM = 8;
+    private final int MORE_NUM = 8;
+    private final int UPDATE_MAX_NUM = 20;
     // TODO 实现下拉加载
     private HomeViewModel homeViewModel;
     private PtrFrameLayout mPtrFrame;
     private RecyclerView recyclerView;
+    private AVLoadingIndicatorView loadingIndicatorView;
     private NewsAdapter mAdapter;
-    private ListHelper helper;
-    private String type;
+    private ListHelper helper;      //用于HTTPS获取数据
+    private String type;            //代表当前Fragment对应的分类
     private ChannelFragment channelFragment = null;
     int lastVisiableItem;
-    int loadedNumber = 0;
-    boolean isLoading = false;      // 表明当前是否正在加载
-    boolean isScrollDown = false;   //表明是否正在下拉
-    int page = 0;
+    private boolean isLoadingMore = false;      // 表明当前是否正在加载
+    private boolean isScrollDown = false;   // 表明是否正在下拉
+    private boolean initDone;               // 是否已经初始化
+    private View root;
+    private int page = 0;
 
     public static NewsListFragment newInstance(String type) {
         NewsListFragment fragment = new NewsListFragment();
@@ -80,12 +85,14 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        if()
-        homeViewModel =
-                ViewModelProviders.of(this).get(HomeViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_news_list, container, false);
-        findView(root);     //初始化PtrFrame和recycleView
-        initView();     //初始化界面
+        if (root == null) {
+            homeViewModel =
+                    ViewModelProviders.of(this).get(HomeViewModel.class);
+            root = inflater.inflate(R.layout.fragment_news_list, container, false);
+            findView(root);     //初始化PtrFrame和recycleView
+            initView();     //初始化界面
+            Log.i("Create", type);
+        }
         return root;
     }
 
@@ -94,6 +101,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
     private void findView(View root) {
         mPtrFrame = root.findViewById(R.id.ptrFrameLayout);
         recyclerView = root.findViewById(R.id.recyclerView);
+        loadingIndicatorView = root.findViewById(R.id.list_avi);
     }
 
     //返回更多数据
@@ -102,8 +110,13 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         thread.start();
     }
 
+    //获取最新数据
+    private void updateData() {
+
+    }
 
     private void initView() {
+        initDone = false;
         Log.i("TYPE", type);
         // 设置helper
         helper = new ListHelper();
@@ -118,13 +131,14 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         mAdapter = new NewsAdapter(this, getContext());
         recyclerView.setAdapter(mAdapter);
         // 初始化数据
+        loadingIndicatorView.smoothToShow();
         loadMoreData();
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem == mAdapter.getItemCount() - 1 && !isLoading && isScrollDown) {
-                    isLoading = true;
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem == mAdapter.getItemCount() - 1 && !isLoadingMore && isScrollDown) {
+                    isLoadingMore = true;
                     mAdapter.changeState(NewsAdapter.LoadingType.LOADING_MORE);
                     loadMoreData();
                 }
@@ -150,7 +164,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
         intent.putExtra("id", info.myId);     //传入id
         startActivity(intent);
-        //颜色变灰
+        //数据库保存，颜色变灰
         mAdapter.itemPressed(position);
         TextView titleTv = view.findViewById(R.id.news_list_title);
         titleTv.setTextColor(getContext().getColorStateList(R.color.grey));
@@ -158,17 +172,15 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
 
     private class ListHelper implements Runnable {
         // 下面是新闻的内容
-        private final String listUrl = getString(R.string.news_list_url);
+        private  final String listUrl = getString(R.string.news_list_url);
 
         public ListHelper() {
 
         }
 
-        @Override
-        public void run() {
+        public JSONObject getData(URL url) {
+            JSONObject object = null;
             try {
-                page++;
-                URL url = new URL(listUrl + "?type=" + type + "&page=" + page + "&size=" + UPDATE_NUM);
                 HttpsTrustManager.allowAllSSL();
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                 connection.setAllowUserInteraction(false);
@@ -192,22 +204,65 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 reader.close();
                 connection.disconnect();
                 // 解析Json
-                JSONArray json = JSONObject.parseObject(builder.toString()).getJSONArray("data");
-                final List<NewsInfo> data = parseJson(json);
-                Log.i("GET_DATA", "" + data.size());
-                // 更新UI
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mAdapter.updateData(data);
-                    }
-                }, 500);
-                isLoading = false;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+                object = JSONObject.parseObject(builder.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return object;
+        }
+
+        // 获取更多
+        void getMore() {
+            page++;
+            URL url = null;
+            try {
+                url = new URL(listUrl + "?type=" + type + "&page=" + page + "&size=" + MORE_NUM);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            JSONArray json = getData(url).getJSONArray("data");
+            final List<NewsInfo> data = parseJson(json);
+            // 更新UI
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.updateData(data);
+                    if (!initDone) {
+                        loadingIndicatorView.hide();
+                        initDone = true;
+                    }
+                }
+            }, 500);
+            isLoadingMore = false;
+        }
+
+        // 获取更新
+        void updateMore(){
+            URL url = null;
+            try {
+                url = new URL(listUrl + "?type=" + type + "&page=" + 1 + "&size=" + UPDATE_MAX_NUM);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            JSONArray json = getData(url).getJSONArray("data");
+            final List<NewsInfo> data = parseJson(json);
+            // 更新UI
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.updateData(data);
+                    if (!initDone) {
+                        loadingIndicatorView.hide();
+                        initDone = true;
+                    }
+                }
+            }, 500);
+            isLoadingMore = false;
+        }
+
+        @Override
+        public void run() {
+            getMore();
         }
 
         // 开始解析json

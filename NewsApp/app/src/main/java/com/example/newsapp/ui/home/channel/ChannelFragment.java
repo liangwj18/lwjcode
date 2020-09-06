@@ -76,7 +76,7 @@ public class ChannelFragment extends Fragment {
         }
         // 新建适配器
         mAdapter = new ChannelAdapter(getContext(), list);
-        mAdapter.setFixSize(1);
+        mAdapter.setFixSize(0);
         mAdapter.setSelectedSize(select.length);
         recyclerView.setAdapter(mAdapter);
         // 设置网格布局器

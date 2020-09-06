@@ -130,7 +130,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         });
 
         //tab下面的不显示删除按钮
-        if (position - 1 < fixSize || position > selectedSize) {
+        if (position < fixSize || position > selectedSize) {
             holder.deleteIcon.setVisibility(View.GONE);
         } else {
             holder.deleteIcon.setVisibility(View.VISIBLE);

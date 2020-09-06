@@ -21,10 +21,10 @@ import com.example.newsapp.ui.home.channel.ChannelFragment;
 import com.example.newsapp.ui.home.channel.ChannelItem;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItem;
-import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
+import com.orm.SugarRecord;
+import com.orm.dsl.Unique;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
@@ -62,7 +62,7 @@ public class HomeFragment extends Fragment {
         Bundle newsBundle = getBundle("news");
         Bundle paperBundle = getBundle("paper");
         pagers = FragmentPagerItems.with(getContext())
-                .add("ALL", NewsListFragment.class, listBundle)
+                .add("All", NewsListFragment.class, listBundle)
                 .add("News", NewsListFragment.class, newsBundle)
                 .add("Paper", NewsListFragment.class, paperBundle)
                 .add("新时代", BlankFragment.class)
@@ -119,6 +119,7 @@ public class HomeFragment extends Fragment {
                         adapter.addItems(FragmentPagerItem.of(item.getName(), BlankFragment.class));
                 }
             }
+            adapter.notifyChangeInPosition(1);
             adapter.notifyDataSetChanged();
             pagerTab.setViewPager(viewPager);
         }

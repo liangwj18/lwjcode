@@ -15,7 +15,8 @@ import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 import java.util.function.Predicate;
 
 public class MyPagerAdapter extends FragmentPagerItemAdapter {
-    FragmentPagerItems mPages;
+    private FragmentPagerItems mPages;
+    private int baseId;
 
     public MyPagerAdapter(FragmentManager fm, FragmentPagerItems pages) {
         super(fm, pages);
@@ -24,11 +25,7 @@ public class MyPagerAdapter extends FragmentPagerItemAdapter {
 
     @Override
     public int getItemPosition(Object object) {
-        int index = mPages.indexOf(object);
-        if (index == -1)
-            return POSITION_NONE;
-        else
-            return index;
+        return POSITION_NONE;
     }
 
     @Override
@@ -45,9 +42,19 @@ public class MyPagerAdapter extends FragmentPagerItemAdapter {
         mPages.removeIf(new Predicate<FragmentPagerItem>() {
             @Override
             public boolean test(FragmentPagerItem fragmentPagerItem) {
-                return fragmentPagerItem.getTitle() != "ALL";
+                return fragmentPagerItem.getTitle() != "All";
             }
         });
         pager.setAdapter(this);
+    }
+
+    // 使fragment变化的关键
+    @Override
+    public long getItemId(int position) {
+        return position == 0 ? 0 : baseId + position;
+    }
+
+    public void notifyChangeInPosition(int n) {
+        baseId += getCount() + n;
     }
 }
