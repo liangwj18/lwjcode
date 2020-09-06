@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/list_avi"
+        style="@style/AVLoadingIndicatorView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="visible"
+        app:indicatorColor="@color/blue"
+        app:indicatorName="LineScalePulseOutRapidIndicator" />
 
     <in.srain.cube.views.ptr.PtrFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -17,4 +29,4 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </in.srain.cube.views.ptr.PtrFrameLayout>
-</LinearLayout>
+</RelativeLayout>

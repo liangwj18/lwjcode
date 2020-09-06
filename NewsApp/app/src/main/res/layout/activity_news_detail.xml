@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/avi"
+        android:id="@+id/detail_avi"
         style="@style/AVLoadingIndicatorView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.newsapp.R;
+import com.orm.util.NamingHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +23,6 @@ import java.util.List;
 
 public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<NewsInfo> mNewsList;
-    private List<Boolean> pressedList;
     private AdapterView.OnClickListener listener;   //点击监听器
     private Context context;
 
@@ -47,7 +47,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             sourceTv = view.findViewById(R.id.news_list_source);
         }
 
-        public void bindData(NewsInfo info, boolean isPressed) {
+        public void bindData(NewsInfo info) {
             titleTv.setText(info.title);
             timeTv.setText(info.time);
             typeTv.setText(info.newsType);
@@ -69,7 +69,6 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public NewsAdapter(AdapterView.OnClickListener listener, Context context) {
         mNewsList = new ArrayList<>();
         this.listener = listener;
-        pressedList = new ArrayList<>();
         this.context = context;
     }
 
@@ -94,8 +93,10 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof NewsHolder) {
             NewsInfo info = mNewsList.get(position);
-            ((NewsHolder) holder).bindData(info, pressedList.get(position));
-            if (pressedList.get(position)) {
+            ((NewsHolder) holder).bindData(info);
+            // 如果数据库查到存在，那么变灰
+            if (BrowsingHistory.find(BrowsingHistory.class, "my_id = ?",
+                    mNewsList.get(position).myId).size() != 0) {
                 Log.i("PRESSED", "position = " + position + info.title.substring(0, 10));
                 ((NewsHolder) holder).titleTv.setTextColor(context.getColorStateList(R.color.grey));
             } else {
@@ -147,9 +148,8 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void updateData(List<NewsInfo> newData) {
-        Log.i("UPDATE","data size = newData.size()");
+        Log.i("UPDATE", "data size = newData.size()");
         mNewsList.addAll(newData);
-        pressedList.addAll(Collections.nCopies(newData.size(), false));
         changeState(LoadingType.NORMAL);
     }
 
@@ -158,6 +158,8 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void itemPressed(int position) {
-        pressedList.set(position, true);
+        // 保存浏览记录到数据库
+        BrowsingHistory history = new BrowsingHistory(mNewsList.get(position).myId);
+        history.save();
     }
 }

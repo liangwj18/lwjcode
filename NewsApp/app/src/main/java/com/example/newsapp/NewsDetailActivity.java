@@ -161,6 +161,6 @@ public class NewsDetailActivity extends AppCompatActivity {
         influence_icon = findViewById(R.id.influence_icon);
 
         container = findViewById(R.id.detail_content_layout);
-        loadingIndicatorView = findViewById(R.id.avi);
+        loadingIndicatorView = findViewById(R.id.detail_avi);
     }
 }
