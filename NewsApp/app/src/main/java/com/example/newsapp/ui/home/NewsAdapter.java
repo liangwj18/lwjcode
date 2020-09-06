@@ -36,25 +36,22 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static class NewsHolder extends RecyclerView.ViewHolder {
         private TextView titleTv;
         private TextView timeTv;
-        private TextView langTv;
         private TextView typeTv;
-        private TextView originTv;
+        private TextView sourceTv;
 
         public NewsHolder(View view) {
             super(view);
             titleTv = view.findViewById(R.id.news_list_title);
             timeTv = view.findViewById(R.id.news_list_time);
-            langTv = view.findViewById(R.id.news_list_language);
             typeTv = view.findViewById(R.id.news_list_type);
-            originTv = view.findViewById(R.id.news_list_origin);
+            sourceTv = view.findViewById(R.id.news_list_source);
         }
 
         public void bindData(NewsInfo info, boolean isPressed) {
             titleTv.setText(info.title);
             timeTv.setText(info.time);
-            langTv.setText(info.lang);
-            typeTv.setText(info.type);
-            originTv.setText(info.origin);
+            typeTv.setText(info.newsType);
+            sourceTv.setText(info.source);
         }
     }
 
@@ -69,10 +66,10 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public NewsAdapter(List<NewsInfo> lists, AdapterView.OnClickListener listener, Context context) {
-        mNewsList = lists;
+    public NewsAdapter(AdapterView.OnClickListener listener, Context context) {
+        mNewsList = new ArrayList<>();
         this.listener = listener;
-        pressedList = new ArrayList<>(Collections.nCopies(lists.size(), false));
+        pressedList = new ArrayList<>();
         this.context = context;
     }
 
@@ -99,9 +96,9 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             NewsInfo info = mNewsList.get(position);
             ((NewsHolder) holder).bindData(info, pressedList.get(position));
             if (pressedList.get(position)) {
-                Log.i("PRESSED", "position = " + position+info.title.substring(0,10));
+                Log.i("PRESSED", "position = " + position + info.title.substring(0, 10));
                 ((NewsHolder) holder).titleTv.setTextColor(context.getColorStateList(R.color.grey));
-            }else{
+            } else {
                 ((NewsHolder) holder).titleTv.setTextColor(context.getColorStateList(R.color.black));
             }
         } else {
@@ -150,6 +147,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void updateData(List<NewsInfo> newData) {
+        Log.i("UPDATE","data size = newData.size()");
         mNewsList.addAll(newData);
         pressedList.addAll(Collections.nCopies(newData.size(), false));
         changeState(LoadingType.NORMAL);

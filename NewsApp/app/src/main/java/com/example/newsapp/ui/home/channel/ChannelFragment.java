@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,11 +27,17 @@ public class ChannelFragment extends Fragment {
     private ImageButton closeBtn;
     private RecyclerView recyclerView;
     ChannelAdapter mAdapter;
-    private String select[] = {"新闻", "论文", "新时代"};
+    private String select[] = {"News", "Paper", "新时代"};
     private String waitingList[] = {"汽车", "时尚", "国际", "电影", "财经", "游戏", "科技", "房产", "政务", "图片", "独家"};
+    List<ChannelItem> list;
+    Handler mHandler;
 
     public ChannelFragment() {
         // Required empty public constructor
+    }
+
+    public ChannelFragment(Handler handler) {
+        mHandler = handler;
     }
 
     @Override
@@ -55,7 +63,7 @@ public class ChannelFragment extends Fragment {
         animator.setRemoveDuration(0);
         recyclerView.setItemAnimator(animator);
         // 初始化数据
-        List<ChannelItem> list = new ArrayList<>();
+        list = new ArrayList<>();
         for (String name : select) {
             list.add(new ChannelItem(name, 1, R.layout.channel_item));
         }
@@ -95,6 +103,9 @@ public class ChannelFragment extends Fragment {
                 FragmentTransaction transaction = parentManager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in, R.anim.slide_out);
                 transaction.hide(parentManager.findFragmentByTag("CHANNEL")).commit();
+                Message msg = new Message();
+                msg.obj = list.subList(0, mAdapter.getSelectedSize());
+                mHandler.sendMessage(msg);
             }
         });
     }

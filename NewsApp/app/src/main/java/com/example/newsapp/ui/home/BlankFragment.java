@@ -53,8 +53,6 @@ public class BlankFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
        View root = inflater.inflate(R.layout.fragment_blank_channel, container, false);
-       TextView tv = root.findViewById(R.id.blank_channel_title);
-       tv.setText(name);
        return root;
     }
 }

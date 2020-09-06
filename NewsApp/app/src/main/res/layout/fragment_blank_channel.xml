@@ -9,5 +9,5 @@
     android:layout_height="wrap_content"
     android:textSize="20sp"
     android:gravity="center"
-    android:text="test"/>
+    android:text="本频道暂不开放，测试使用"/>
 </LinearLayout>

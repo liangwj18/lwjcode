@@ -46,6 +46,7 @@ public class NewsDetailActivity extends AppCompatActivity {
         // 下面构建子线程
         String targetID = getIntent().getStringExtra("id");
         detailHelper = new DetailHelper(getString(R.string.news_detail_url) + targetID);
+        Log.i("URL",getString(R.string.news_detail_url) + targetID);
         new Thread(detailHelper).start();
     }
 

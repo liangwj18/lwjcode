@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="news_detail_url">https://covid-dashboard-api.aminer.cn/event/</string>
-    <string name="news_list_url">https://covid-dashboard-api.aminer.cn/api/dist/events.json</string>
+    <string name="news_list_url">https://covid-dashboard.aminer.cn/api/events/list</string>
 </resources>
