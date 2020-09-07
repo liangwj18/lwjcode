@@ -260,6 +260,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 }
                 reader.close();
                 connection.disconnect();
+
                 // 解析Json
                 object = JSONObject.parseObject(builder.toString());
             } catch (IOException e) {
@@ -408,10 +409,8 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 String title = item.getString("title");
                 String source = item.getString("source");
                 source = (source != null) ? source : "未知来源";
-                JSONArray urls = item.getJSONArray("urls");
-                String originURL = "";
-                if (urls.size() > 0)
-                    originURL = urls.getString(0);
+                JSONArray originarr = item.getJSONArray("urls");
+                String originURL = (originarr.size() > 0) ? originarr.getString(0) : "未知URL";
                 String id = item.getString("_id");
                 String newsType = item.getString("type");
                 NewsInfo info = new NewsInfo(id, title, time, source, tflag, originURL,
