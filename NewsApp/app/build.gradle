@@ -36,7 +36,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     // 第三方包
-
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0' //画图
     implementation 'in.srain.cube:ultra-ptr:1.0.11'     // 下拉刷新
     implementation 'com.alibaba:fastjson:1.1.72.android' // 读取json
     implementation 'com.wang.avi:library:2.1.3'         //动态加载动画
