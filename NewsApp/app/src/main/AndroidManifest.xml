@@ -35,6 +35,7 @@
             android:name="DOMAIN_PACKAGE_NAME"
             android:value="com.example.newsapp" />
     </application>
-
+    <!--    权限-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

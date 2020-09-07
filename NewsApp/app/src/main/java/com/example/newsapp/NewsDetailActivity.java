@@ -39,7 +39,7 @@ public class NewsDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_detail);
         findView();     //找到所有的TextView
-        loadingIndicatorView.smoothToShow();
+        loadingIndicatorView.show();
         container.setVisibility(View.GONE);
         mHandler = new Handler();
 

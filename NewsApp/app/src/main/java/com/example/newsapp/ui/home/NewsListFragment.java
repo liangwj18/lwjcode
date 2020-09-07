@@ -1,13 +1,13 @@
 package com.example.newsapp.ui.home;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,8 +19,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,31 +30,39 @@ import com.example.newsapp.NewsDetailActivity;
 import com.example.newsapp.R;
 import com.example.newsapp.ui.home.channel.ChannelFragment;
 import com.example.newsapp.utils.HttpsTrustManager;
+import com.orm.SugarRecord;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import in.srain.cube.views.ptr.PtrFrameLayout;
+import in.srain.cube.views.ptr.PtrHandler;
 import in.srain.cube.views.ptr.header.MaterialHeader;
 
 public class NewsListFragment extends Fragment implements AdapterView.OnClickListener {
     private static final String ARG_TYPE = "type";
-    private final int MORE_NUM = 8;
-    private final int UPDATE_MAX_NUM = 20;
+    private final int MORE_NUM = 10;
+    private final int UPDATE_NUM = 5;
+    private final int MAX_CACHE_NUM = 1000;     //最多缓存1k条数据
+    // 下拉刷新和上拉加载更多
+    private final String UP = "MORE";
+    private final String DOWN = "UPDATE";
     // TODO 实现下拉加载
     private HomeViewModel homeViewModel;
     private PtrFrameLayout mPtrFrame;
     private RecyclerView recyclerView;
+    private LinearLayoutManager linearLayoutManager;
     private AVLoadingIndicatorView loadingIndicatorView;
     private NewsAdapter mAdapter;
     private ListHelper helper;      //用于HTTPS获取数据
@@ -65,7 +73,8 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
     private boolean isScrollDown = false;   // 表明是否正在下拉
     private boolean initDone;               // 是否已经初始化
     private View root;
-    private int page = 0;
+    private int onlinePage = 0;
+    private int offlinePage = 0;
 
     public static NewsListFragment newInstance(String type) {
         NewsListFragment fragment = new NewsListFragment();
@@ -106,13 +115,16 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
 
     //返回更多数据
     private void loadMoreData() {
+        helper.setType(UP);
         Thread thread = new Thread(helper);
         thread.start();
     }
 
     //获取最新数据
     private void updateData() {
-
+        helper.setType(DOWN);
+        Thread thread = new Thread(helper);
+        thread.start();
     }
 
     private void initView() {
@@ -125,13 +137,36 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         divider.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.list_divider));
         recyclerView.addItemDecoration(divider);
         // 初始化RecyclerView
-        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        linearLayoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         // 为列表构建一个监听器，监听是否上拉加载更多
         mAdapter = new NewsAdapter(this, getContext());
         recyclerView.setAdapter(mAdapter);
+        // 给下拉刷新加载header
+        final MaterialHeader header = new MaterialHeader(getContext());
+        header.setLayoutParams(new PtrFrameLayout.LayoutParams(-1, -2));
+        header.setPadding(0, 15, 0, 15);
+        int[] colors = getResources().getIntArray(R.array.refresh_color);
+        header.setColorSchemeColors(colors);
+        mPtrFrame.setHeaderView(header);
+        mPtrFrame.addPtrUIHandler(header);
+        // 给下拉刷新加载handler
+        mPtrFrame.setPtrHandler(new PtrHandler() {
+            @Override
+            public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
+                if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0)
+                    return true;
+                else
+                    return false;
+            }
+
+            @Override
+            public void onRefreshBegin(PtrFrameLayout frame) {
+                updateData();
+            }
+        });
         // 初始化数据
-        loadingIndicatorView.smoothToShow();
+        loadingIndicatorView.show();
         loadMoreData();
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -142,11 +177,18 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                     mAdapter.changeState(NewsAdapter.LoadingType.LOADING_MORE);
                     loadMoreData();
                 }
+                int firstPos = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+                if (firstPos > 0) {
+                    mPtrFrame.setEnabled(false);
+                } else {
+                    mPtrFrame.setEnabled(true);
+                }
             }
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                mPtrFrame.setEnabled(linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0);
                 lastVisiableItem = linearLayoutManager.findLastCompletelyVisibleItemPosition();
                 if (dy > 0)
                     isScrollDown = true;
@@ -170,13 +212,28 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         titleTv.setTextColor(getContext().getColorStateList(R.color.grey));
     }
 
+    // 判断是否联网
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null &&
+                cm.getActiveNetworkInfo().isConnectedOrConnecting();
+    }
+
     private class ListHelper implements Runnable {
         // 下面是新闻的内容
-        private  final String listUrl = getString(R.string.news_list_url);
+        private final String listUrl = getString(R.string.news_list_url);
+        private String type;
 
         public ListHelper() {
 
         }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
 
         public JSONObject getData(URL url) {
             JSONObject object = null;
@@ -211,18 +268,62 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
             return object;
         }
 
-        // 获取更多
-        void getMore() {
-            page++;
+        private List<NewsInfo> getCurrentPageData() {
             URL url = null;
             try {
-                url = new URL(listUrl + "?type=" + type + "&page=" + page + "&size=" + MORE_NUM);
+                url = new URL(listUrl + "?type=" + type + "&page=" + onlinePage + "&size=" + MORE_NUM);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
             JSONArray json = getData(url).getJSONArray("data");
-            final List<NewsInfo> data = parseJson(json);
-            // 更新UI
+            return parseJson(json);
+        }
+
+        // 获取更多
+        private void getMore() {
+            if (isOnline()) {
+                // 如果有网络
+                onlinePage++;
+                List<NewsInfo> data = getCurrentPageData();
+                if (NewsInfo.count(NewsInfo.class) >= MAX_CACHE_NUM) {
+                    // 如果超过缓存数目，那么清空表，重新添加数据
+                    SugarRecord.deleteAll(NewsInfo.class);
+                }
+                // 储存到本地
+                SugarRecord.saveInTx(data);
+                final List<NewsInfo> newData = data;
+                // 更新UI
+                loadingUIDone(data, 500);
+            } else {
+                // 没有网络，尝试从数据库加载
+                List<NewsInfo> data = NewsInfo.findWithQuery(NewsInfo.class,
+                        "SELECT * FROM News_Info WHERE type = ? LIMIT ? OFFSET ?",
+                        NewsListFragment.this.type.toLowerCase(), "" + MORE_NUM, "" + offlinePage * MORE_NUM);
+                Log.i("TOTAL_CACHE", NewsListFragment.this.type + NewsInfo.count(NewsInfo.class, "type = ?", new String[]{NewsListFragment.this.type.toLowerCase()}));
+                Log.i("CACHE", NewsListFragment.this.type + data.size());
+                offlinePage++;
+                // 数据库加载后排序
+                Collections.sort(data, new Comparator<NewsInfo>() {
+                    @Override
+                    public int compare(NewsInfo a, NewsInfo b) {
+                        return Long.compare(b.tflag, a.tflag);
+                    }
+                });
+                // 更新UI
+                if (data.size() == 0) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.changeState(NewsAdapter.LoadingType.NO_MORE);
+                        }
+                    });
+                }
+                loadingUIDone(data, 1000);
+            }
+
+        }
+
+        private void loadingUIDone(final List<NewsInfo> data, int delay) {
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -231,38 +332,69 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                         loadingIndicatorView.hide();
                         initDone = true;
                     }
+                    isLoadingMore = false;
+                    recyclerView.smoothScrollBy(0, -50);    // 划一些上去
                 }
-            }, 500);
-            isLoadingMore = false;
+            }, delay);
         }
 
         // 获取更新
-        void updateMore(){
+        private boolean updateMore() {
+            if (!isOnline()) {
+                // 没有网络
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "您未联网", Toast.LENGTH_LONG).show();
+                    }
+                }, 500);
+                mPtrFrame.refreshComplete();
+                return false;
+            }
             URL url = null;
             try {
-                url = new URL(listUrl + "?type=" + type + "&page=" + 1 + "&size=" + UPDATE_MAX_NUM);
+                url = new URL(listUrl + "?type=" + type + "&page=" + 1 + "&size=" + UPDATE_NUM);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
             JSONArray json = getData(url).getJSONArray("data");
             final List<NewsInfo> data = parseJson(json);
-            // 更新UI
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mAdapter.updateData(data);
-                    if (!initDone) {
-                        loadingIndicatorView.hide();
-                        initDone = true;
+            // 和目前Adapter的数据比对并添加
+            boolean updated = mAdapter.checkUpdateData(data.get(0));
+            Log.i("Update", Boolean.toString(updated));
+            if (updated) {
+                // 重新获取更新后的数据
+                onlinePage = 0;
+                final List<NewsInfo> newData = getCurrentPageData();
+                // 重新设置数据
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "成功刷新", Toast.LENGTH_LONG).show();
+                        mAdapter.resetData(newData);
                     }
-                }
-            }, 500);
-            isLoadingMore = false;
+                }, 500);
+                mPtrFrame.refreshComplete();    //结束刷新
+                return true;
+            } else {
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "已是最新", Toast.LENGTH_LONG).show();
+                    }
+                }, 500);
+                mPtrFrame.refreshComplete();    //结束刷新
+                return false;
+            }
+
         }
 
         @Override
         public void run() {
-            getMore();
+            if (type == "MORE")
+                getMore();
+            else if (type == "UPDATE")
+                updateMore();
         }
 
         // 开始解析json
@@ -272,14 +404,18 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 JSONObject item = json.getJSONObject(i);
                 String content = item.getString("content");
                 String time = item.getString("time");
-                String tflag = item.getString("tflag");
+                long tflag = item.getLongValue("tflag");
                 String title = item.getString("title");
                 String source = item.getString("source");
                 source = (source != null) ? source : "未知来源";
-                String originURL = item.getJSONArray("urls").getString(0);
+                JSONArray urls = item.getJSONArray("urls");
+                String originURL = "";
+                if (urls.size() > 0)
+                    originURL = urls.getString(0);
                 String id = item.getString("_id");
                 String newsType = item.getString("type");
-                NewsInfo info = new NewsInfo(id, title, time, source, tflag, originURL, content, newsType);
+                NewsInfo info = new NewsInfo(id, title, time, source, tflag, originURL,
+                        content, newsType, NewsListFragment.this.type);
                 data.add(info);
             }
             return data;

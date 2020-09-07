@@ -148,7 +148,6 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void updateData(List<NewsInfo> newData) {
-        Log.i("UPDATE", "data size = newData.size()");
         mNewsList.addAll(newData);
         changeState(LoadingType.NORMAL);
     }
@@ -161,5 +160,22 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // 保存浏览记录到数据库
         BrowsingHistory history = new BrowsingHistory(mNewsList.get(position).myId);
         history.save();
+    }
+
+    // 返回是否有新的数据
+    public boolean checkUpdateData(NewsInfo newData) {
+        // 比较并添加数据
+        NewsInfo current = mNewsList.get(0);
+        Log.i("CURRENT", current.myId);
+        Log.i("CURRENT", newData.myId);
+        if (!newData.myId.equals(current.myId))  // 字符串比较用equals
+            return true;
+        else
+            return false;
+    }
+
+    public void resetData(List<NewsInfo> newData) {
+        mNewsList = newData;
+        notifyDataSetChanged();
     }
 }

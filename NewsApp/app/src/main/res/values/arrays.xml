@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="refresh_color">
+        <item>@color/colorPrimary</item>
+        <item>@color/blue</item>
+    </integer-array>
+</resources>

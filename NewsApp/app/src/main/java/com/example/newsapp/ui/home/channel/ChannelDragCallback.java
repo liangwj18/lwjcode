@@ -66,16 +66,17 @@ public class ChannelDragCallback extends ItemTouchHelper.Callback {
         super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         if (dX != 0 && dY != 0 || isCurrentlyActive) {
             //长按拖拽时底部绘制一个虚线矩形
-            c.drawRect(viewHolder.itemView.getLeft(),viewHolder.itemView.getTop()-mPadding,viewHolder.itemView.getRight(),viewHolder.itemView.getBottom(),mPaint);
+            c.drawRect(viewHolder.itemView.getLeft() - mPadding, viewHolder.itemView.getTop() - mPadding,
+                    viewHolder.itemView.getRight() + mPadding, viewHolder.itemView.getBottom() + mPadding, mPaint);
         }
     }
 
     @Override
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
         super.onSelectedChanged(viewHolder, actionState);
-        if(actionState==ACTION_STATE_DRAG){
+        if (actionState == ACTION_STATE_DRAG) {
             //长按时调用
-            ChannelAdapter.ChannelHolder holder= (ChannelAdapter.ChannelHolder) viewHolder;
+            ChannelAdapter.ChannelHolder holder = (ChannelAdapter.ChannelHolder) viewHolder;
             holder.nameTv.setBackgroundColor(Color.parseColor("#FDFDFE"));  // 拖动变白
             holder.deleteIcon.setVisibility(View.GONE);     //拖动时不显示删除图标
             holder.nameTv.setElevation(5f);     //纵向提升的效果
@@ -86,7 +87,7 @@ public class ChannelDragCallback extends ItemTouchHelper.Callback {
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         // 交互完之后，使用该方法重写View
         super.clearView(recyclerView, viewHolder);
-        ChannelAdapter.ChannelHolder holder= (ChannelAdapter.ChannelHolder) viewHolder;
+        ChannelAdapter.ChannelHolder holder = (ChannelAdapter.ChannelHolder) viewHolder;
         holder.nameTv.setBackgroundColor(greyColor);
         holder.nameTv.setElevation(0f);     // 取消提升
         holder.deleteIcon.setVisibility(View.VISIBLE);
