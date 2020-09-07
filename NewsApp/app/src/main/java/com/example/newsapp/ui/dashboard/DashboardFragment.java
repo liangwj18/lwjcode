@@ -2,11 +2,14 @@ package com.example.newsapp.ui.dashboard;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -65,11 +68,10 @@ public class DashboardFragment extends Fragment {
     private FragmentPagerItems pagers;
     private SmartTabLayout pagerTab;
     private ViewPager viewPager;
-
+    private RelativeLayout relativeLayout;
 
     DetailHelper detailHelper;
     private DashboardViewModel dashboardViewModel;
-
 
 
     private class DetailHelper implements Runnable {
@@ -81,7 +83,17 @@ public class DashboardFragment extends Fragment {
 
         @Override
         public void run() {
+            if (CountyInfo.count(CountyInfo.class, null, null,
+                    null, null, "1") == 0) {
+                loadingData();
+                Log.i("CHART","LOADING");
+            }else{
+                Log.i("CHART","NO_LOADING");
+            }
+            updateUI();
+        }
 
+        private void loadingData() {
             try {
                 URL url = new URL(urlString);
                 HttpsTrustManager.allowAllSSL();
@@ -103,29 +115,26 @@ public class DashboardFragment extends Fragment {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     builder.append(line);
-
                 }
 
                 reader.close();
                 connection.disconnect();
+                // 读取JSON
+                JSONObject jsonSet = JSONObject.parseObject(builder.toString());
+                for (Map.Entry<String, Object> entry : jsonSet.entrySet()) {
+                    String address = entry.getKey();
+                    String[] address_list = address.split("\\|");
+                    String Country = address_list[0];
+                    String Province = "";
+                    if (address_list.length > 1) Province = address_list[1];
+                    String County = "";
+                    if (address_list.length > 2) County = address_list[2];
+                    System.out.println(address_list[0].length());
 
-                try
-                {
-                    JSONObject jsonSet=JSONObject.parseObject(builder.toString());
-                    for (Map.Entry<String, Object> entry:jsonSet.entrySet()) {
-                        String address = entry.getKey();
-                        String[] address_list = address.split("\\|");
-                        String Country = address_list[0];
-                        String Province ="";
-                        if (address_list.length>1) Province=address_list[1];
-                        String County = "";
-                        if (address_list.length > 2) County=address_list[2];
-                        System.out.println(address_list[0].length());
-
-                        JSONObject jsonSet2=(JSONObject)entry.getValue();
-                        String Begin_Time=jsonSet2.getString("begin");
-                        JSONArray array=jsonSet2.getJSONArray("data");
-                        String dayinfo=array.toString();
+                    JSONObject jsonSet2 = (JSONObject) entry.getValue();
+                    String Begin_Time = jsonSet2.getString("begin");
+                    JSONArray array = jsonSet2.getJSONArray("data");
+                    String dayinfo = array.toString();
 
                         /*
                         List <County_Day_Info> day_infoList=new ArrayList<County_Day_Info>();
@@ -150,30 +159,30 @@ public class DashboardFragment extends Fragment {
 
                         }*/
 
-                        CountyInfo countyInfo=new CountyInfo(Country,Province,County,Begin_Time,dayinfo);
-                        System.out.println(Country);
-                        countyInfo.save();
-                    }
-
+                    CountyInfo countyInfo = new CountyInfo(Country, Province, County, Begin_Time, dayinfo);
+                    System.out.println(Country);
+                    countyInfo.save();
                 }
-
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-                System.out.println(CountyInfo.findById(CountyInfo.class,1).getProvince());
-
-                // 解析Json
-                // JSONObject json = JSONObject.parseObject(builder.toString()).getJSONObject("data");
-                // parseJson(json);
-
-                // 更新UI
-
+                updateUI();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+        }
+
+        private void updateUI() {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // 开始加载页面
+                    initView();
+                    // 隐藏加载
+                    relativeLayout.setVisibility(View.GONE);
+                }
+            }, 500);
         }
     }
 
@@ -192,44 +201,38 @@ public class DashboardFragment extends Fragment {
                 .create();
     }
 
-    public static int myParseInt(String st)
-    {
-        int ret=-1;
+    public static int myParseInt(String st) {
+        int ret = -1;
         if (st.equals("null")) return ret;
         else return Integer.parseInt(st);
     }
 
-    public static void MyDrawChart(View root,String datas)
-    {
-        List <County_Day_Info> day_infoList=new ArrayList<County_Day_Info>();
-        JSONArray array= JSON.parseArray(datas);
-        for (int i=0;i<array.size();++i)
-        {
-            int sum_days=i+1;
-            String dataArr=array.get(i).toString();
-            dataArr=dataArr.substring(1,dataArr.length()-1);
-            String[] datalist=dataArr.split(",");
+    public static void MyDrawChart(View root, String datas) {
+        List<County_Day_Info> day_infoList = new ArrayList<County_Day_Info>();
+        JSONArray array = JSON.parseArray(datas);
+        for (int i = 0; i < array.size(); ++i) {
+            int sum_days = i + 1;
+            String dataArr = array.get(i).toString();
+            dataArr = dataArr.substring(1, dataArr.length() - 1);
+            String[] datalist = dataArr.split(",");
 
-            int confirmed=myParseInt(datalist[0]);
-            int suspected=myParseInt(datalist[1]);
-            int cured=myParseInt(datalist[2]);
-            int dead=myParseInt(datalist[3]);
-            int severe=myParseInt(datalist[4]);
-            int risk=myParseInt(datalist[5]);
-            int inc24=myParseInt(datalist[6]);
+            int confirmed = myParseInt(datalist[0]);
+            int suspected = myParseInt(datalist[1]);
+            int cured = myParseInt(datalist[2]);
+            int dead = myParseInt(datalist[3]);
+            int severe = myParseInt(datalist[4]);
+            int risk = myParseInt(datalist[5]);
+            int inc24 = myParseInt(datalist[6]);
 
-            County_Day_Info day_info=new County_Day_Info(confirmed,suspected,cured,dead,severe,risk,inc24);
+            County_Day_Info day_info = new County_Day_Info(confirmed, suspected, cured, dead, severe, risk, inc24);
             day_infoList.add(day_info);
-
-
         }
-
 
 
         System.out.println(day_infoList.get(0));
         //ArrayList<County_Day_Info> data=new ArrayList<County_Day_Info>(tmp);
 
-        LineChart chart=(LineChart) (root.findViewById(R.id.mLineChar));
+        LineChart chart = (LineChart) (root.findViewById(R.id.mLineChar));
         Description description = new Description();//描述信息
         description.setText("疫情发生天数");
         description.setEnabled(true);//是否可用
@@ -280,18 +283,17 @@ public class DashboardFragment extends Fragment {
         legend.setEnabled(true);//是否可用
 
         ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-        List<Entry> entriesConfirmed= new ArrayList<Entry>();
-        List<Entry> entriesCured= new ArrayList<Entry>();
-        List<Entry> entriesDead= new ArrayList<Entry>();
-        for (int i=0;i<day_infoList.size();++i)
-        {
-            entriesConfirmed.add(new Entry(i+1,day_infoList.get(i).getConfirmed()));
-            entriesCured.add(new Entry(i+1,day_infoList.get(i).getCured()));
-            entriesDead.add(new Entry(i+1,day_infoList.get(i).getDead()));
+        List<Entry> entriesConfirmed = new ArrayList<Entry>();
+        List<Entry> entriesCured = new ArrayList<Entry>();
+        List<Entry> entriesDead = new ArrayList<Entry>();
+        for (int i = 0; i < day_infoList.size(); ++i) {
+            entriesConfirmed.add(new Entry(i + 1, day_infoList.get(i).getConfirmed()));
+            entriesCured.add(new Entry(i + 1, day_infoList.get(i).getCured()));
+            entriesDead.add(new Entry(i + 1, day_infoList.get(i).getDead()));
         }
         LineDataSet d1 = new LineDataSet(entriesConfirmed, "Confirmed");
 
-        float Radius=1f;
+        float Radius = 1f;
 
         d1.setLineWidth(2.5f);
         d1.setCircleRadius(Radius);
@@ -320,9 +322,9 @@ public class DashboardFragment extends Fragment {
 
 
     private void findView(View root) {
-
         pagerTab = root.findViewById(R.id.view_pager_tab);
         viewPager = root.findViewById(R.id.viewpager);
+        relativeLayout = root.findViewById(R.id.chart_loading_layout);
     }
 
     private void initView() {
@@ -332,7 +334,6 @@ public class DashboardFragment extends Fragment {
         adapter = new MyPagerAdapter(getChildFragmentManager(), pagers);
         viewPager.setAdapter(adapter);
         pagerTab.setViewPager(viewPager);
-        // 为频道按钮增加监听，添加频道选择Fragment
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -351,10 +352,10 @@ public class DashboardFragment extends Fragment {
         fragmentManager = getChildFragmentManager();
         findView(root);
         initFragment();
-        initView();
-
-        detailHelper = new DetailHelper("https://covid-dashboard.aminer.cn/api/dist/epidemic.json");
-       // new Thread(detailHelper).start();
+        // 显示加载页面
+        relativeLayout.setVisibility(View.VISIBLE);
+        detailHelper = new DetailHelper(getString(R.string.epidemic_data));
+        new Thread(detailHelper).start();
 
         return root;
     }

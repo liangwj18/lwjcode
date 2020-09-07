@@ -224,14 +224,14 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
     private class ListHelper implements Runnable {
         // 下面是新闻的内容
         private final String listUrl = getString(R.string.news_list_url);
-        private String type;
+        private String loadingType; // 为MORE或者UPDATE，表示刷新还是获得更多
 
         public ListHelper() {
 
         }
 
         public void setType(String type) {
-            this.type = type;
+            this.loadingType = type;
         }
 
 
@@ -299,9 +299,9 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 // 没有网络，尝试从数据库加载
                 List<NewsInfo> data = NewsInfo.findWithQuery(NewsInfo.class,
                         "SELECT * FROM News_Info WHERE type = ? LIMIT ? OFFSET ?",
-                        NewsListFragment.this.type.toLowerCase(), "" + MORE_NUM, "" + offlinePage * MORE_NUM);
-                Log.i("TOTAL_CACHE", NewsListFragment.this.type + NewsInfo.count(NewsInfo.class, "type = ?", new String[]{NewsListFragment.this.type.toLowerCase()}));
-                Log.i("CACHE", NewsListFragment.this.type + data.size());
+                        type.toLowerCase(), "" + MORE_NUM, "" + offlinePage * MORE_NUM);
+                Log.i("TOTAL_CACHE", type + NewsInfo.count(NewsInfo.class, "type = ?", new String[]{type.toLowerCase()}));
+                Log.i("CACHE", type + data.size());
                 offlinePage++;
                 // 数据库加载后排序
                 Collections.sort(data, new Comparator<NewsInfo>() {
@@ -392,9 +392,9 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
 
         @Override
         public void run() {
-            if (type == "MORE")
+            if (loadingType == "MORE")
                 getMore();
-            else if (type == "UPDATE")
+            else if (loadingType == "UPDATE")
                 updateMore();
         }
 
@@ -414,7 +414,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 String id = item.getString("_id");
                 String newsType = item.getString("type");
                 NewsInfo info = new NewsInfo(id, title, time, source, tflag, originURL,
-                        content, newsType, NewsListFragment.this.type);
+                        content, newsType, type);
                 data.add(info);
             }
             return data;

@@ -1,7 +1,9 @@
 package com.example.newsapp.ui.dashboard;
 
 import android.graphics.Color;
+
 import com.example.newsapp.ui.dashboard.DashboardFragment;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,7 +69,6 @@ public class WorldFragment extends Fragment {
     }
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,28 +81,25 @@ public class WorldFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-       final View root = inflater.inflate(R.layout.fragment_world_channel, container, false);
-       TextView textView=root.findViewById(R.id.text_world_channel);
-       textView.setText("查询国家");
+        final View root = inflater.inflate(R.layout.fragment_world_channel, container, false);
+        TextView textView = root.findViewById(R.id.text_world_channel);
+        textView.setText("查询国家");
 
-       spinner=root.findViewById(R.id.spinner);
-       List<CountyInfo> list =CountyInfo.listAll(CountyInfo.class);
-       LinkedHashSet <String> listS=new LinkedHashSet<String>();
-       for (int i=0;i<list.size();++i)
-       {
-
-               listS.add(list.get(i).getCountry());
-
-       }
-        this.root=root;
-       List<String> country_list=new ArrayList<String>(listS);
-       String[] arrs=country_list.toArray(new String[country_list.size()]);
+        spinner = root.findViewById(R.id.spinner);
+        List<CountyInfo> list = CountyInfo.listAll(CountyInfo.class);
+        LinkedHashSet<String> listS = new LinkedHashSet<String>();
+        for (int i = 0; i < list.size(); ++i) {
+            listS.add(list.get(i).getCountry());
+        }
+        this.root = root;
+        List<String> country_list = new ArrayList<String>(listS);
+        String[] arrs = country_list.toArray(new String[country_list.size()]);
         Arrays.sort(arrs);
-       ArrayAdapter<String> adapter= new ArrayAdapter<String>(getActivity(),R.layout.support_simple_spinner_dropdown_item,arrs);
-       spinner.setAdapter(adapter);
-       spinner.setVisibility(View.VISIBLE);
-       spinner.setSelection(0, false);
-       spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item, arrs);
+        spinner.setAdapter(adapter);
+        spinner.setVisibility(View.VISIBLE);
+        spinner.setSelection(0, false);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String Country = spinner.getSelectedItem().toString();
                 //清除数据
