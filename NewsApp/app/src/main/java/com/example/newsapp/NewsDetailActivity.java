@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.newsapp.ui.home.NewsInfo;
 import com.example.newsapp.utils.HttpsTrustManager;
 import com.wang.avi.AVLoadingIndicatorView;
 
@@ -22,6 +23,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -43,10 +46,10 @@ public class NewsDetailActivity extends AppCompatActivity {
         container.setVisibility(View.GONE);
         mHandler = new Handler();
 
-        // 下面构建子线程
+        // 下面构建子线程，开始读取数据
         String targetID = getIntent().getStringExtra("id");
-        detailHelper = new DetailHelper(getString(R.string.news_detail_url) + targetID);
-        Log.i("URL",getString(R.string.news_detail_url) + targetID);
+        detailHelper = new DetailHelper(targetID);
+        Log.i("URL", getString(R.string.news_detail_url) + targetID);
         new Thread(detailHelper).start();
     }
 
@@ -54,57 +57,72 @@ public class NewsDetailActivity extends AppCompatActivity {
     // 内部类，用于网络通信
     private class DetailHelper implements Runnable {
         private String urlString;
+        private String targetID;
         // 下面是新闻的内容
         private String content;
         private String time;
-        private String lang;
         private String source;
         private String type;
         private String title;
         private String originURL;
 
-        public DetailHelper(String url) {
-            this.urlString = url;
+        public DetailHelper(String targetID) {
+            this.targetID = targetID;
+            this.urlString = getString(R.string.news_detail_url) + targetID;
         }
 
         @Override
         public void run() {
-            try {
-                URL url = new URL(urlString);
-                HttpsTrustManager.allowAllSSL();
-                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-                connection.setAllowUserInteraction(false);
-                connection.setInstanceFollowRedirects(true);
-                connection.setReadTimeout(10000);
-                connection.setConnectTimeout(15000);
-                connection.setRequestMethod("GET");
-                connection.setDoInput(true);
-                // 发起请求
-                connection.connect();
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
-                }
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream()));
-                StringBuilder builder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
-                }
-                reader.close();
-                connection.disconnect();
+            // 首先查看数据库
+            List<NewsInfo> targetList = NewsInfo.find(NewsInfo.class, "my_id = ?", targetID);
+            if (targetList.size() != 0) {
+                NewsInfo target = targetList.get(0);
+                content = target.getContent();
+                time = target.getTime();
+                type = target.getNewsType();
+                title = target.getTitle();
+                source = target.getSource();
+                originURL = target.getOriginURL();
+                Log.i("DETAIL","Load from database");
+            } else {
+                // 数据库中没有再网络加载
+                try {
+                    URL url = new URL(urlString);
+                    HttpsTrustManager.allowAllSSL();
+                    HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                    connection.setAllowUserInteraction(false);
+                    connection.setInstanceFollowRedirects(true);
+                    connection.setReadTimeout(10000);
+                    connection.setConnectTimeout(15000);
+                    connection.setRequestMethod("GET");
+                    connection.setDoInput(true);
+                    // 发起请求
+                    connection.connect();
+                    if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                        Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+                    }
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(connection.getInputStream()));
+                    StringBuilder builder = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        builder.append(line);
+                    }
+                    reader.close();
+                    connection.disconnect();
 
-                // 解析Json
-                JSONObject json = JSONObject.parseObject(builder.toString()).getJSONObject("data");
-                parseJson(json);
-
-                // 更新UI
-                updateUI();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                    // 解析Json
+                    JSONObject json = JSONObject.parseObject(builder.toString()).getJSONObject("data");
+                    parseJson(json);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.i("DETAIL","Load from internet");
             }
+            // 更新UI
+            updateUI();
         }
 
         // 开始解析json
@@ -115,7 +133,6 @@ public class NewsDetailActivity extends AppCompatActivity {
             title = json.getString("title");
             source = json.getString("source");
             source = (source != null) ? source : "未知来源";
-            lang = json.getString("lang");
             originURL = json.getJSONArray("urls").getString(0);
         }
 
@@ -125,7 +142,7 @@ public class NewsDetailActivity extends AppCompatActivity {
                 public void run() {
                     // 设置图标
                     int randNum = new Random().nextInt(3);
-                    switch (randNum){
+                    switch (randNum) {
                         case 0:
                             influence_icon.setImageDrawable(getDrawable(R.drawable.circle_strong));
                             break;

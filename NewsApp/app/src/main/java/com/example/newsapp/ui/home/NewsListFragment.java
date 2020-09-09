@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,11 +53,11 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
     private static final String ARG_TYPE = "type";
     private final int MORE_NUM = 10;
     private final int UPDATE_NUM = 5;
-    private final int MAX_CACHE_NUM = 1000;     //最多缓存1k条数据
+    private final int MAX_CACHE_NUM = 1000;     //最多缓存1k条数据用于离线查看
     // 下拉刷新和上拉加载更多
     private final String UP = "MORE";
     private final String DOWN = "UPDATE";
-    // TODO 实现下拉加载
+
     private HomeViewModel homeViewModel;
     private PtrFrameLayout mPtrFrame;
     private RecyclerView recyclerView;
@@ -132,10 +131,10 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         Log.i("TYPE", type);
         // 设置helper
         helper = new ListHelper();
-        // 设置分割线
-        DividerItemDecoration divider = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-        divider.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.list_divider));
-        recyclerView.addItemDecoration(divider);
+//        // 设置分割线
+//        DividerItemDecoration divider = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+//        divider.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.list_divider));
+//        recyclerView.addItemDecoration(divider);
         // 初始化RecyclerView
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -204,7 +203,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         //只有新闻添加了监听
         NewsInfo info = mAdapter.getPositionItem(position);
         Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
-        intent.putExtra("id", info.myId);     //传入id
+        intent.putExtra("id", info.getMyId());     //传入id
         startActivity(intent);
         //数据库保存，颜色变灰
         mAdapter.itemPressed(position);
@@ -225,6 +224,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         // 下面是新闻的内容
         private final String listUrl = getString(R.string.news_list_url);
         private String loadingType; // 为MORE或者UPDATE，表示刷新还是获得更多
+        private List<NewsInfo> offlineBackup = null;
 
         public ListHelper() {
 
@@ -284,34 +284,40 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         private void getMore() {
             if (isOnline()) {
                 // 如果有网络
+                offlinePage = 0;
                 onlinePage++;
                 List<NewsInfo> data = getCurrentPageData();
                 if (NewsInfo.count(NewsInfo.class) >= MAX_CACHE_NUM) {
                     // 如果超过缓存数目，那么清空表，重新添加数据
                     SugarRecord.deleteAll(NewsInfo.class);
                 }
+                Log.i("DATABASE_NUM", "" + NewsInfo.count(NewsInfo.class));
                 // 储存到本地
                 SugarRecord.saveInTx(data);
                 final List<NewsInfo> newData = data;
                 // 更新UI
                 loadingUIDone(data, 500);
             } else {
-                // 没有网络，尝试从数据库加载
-                List<NewsInfo> data = NewsInfo.findWithQuery(NewsInfo.class,
-                        "SELECT * FROM News_Info WHERE type = ? LIMIT ? OFFSET ?",
-                        type.toLowerCase(), "" + MORE_NUM, "" + offlinePage * MORE_NUM);
-                Log.i("TOTAL_CACHE", type + NewsInfo.count(NewsInfo.class, "type = ?", new String[]{type.toLowerCase()}));
-                Log.i("CACHE", type + data.size());
+                // 没有网络，从数据库拿缓存数据
+                if (offlineBackup == null) {
+                    offlineBackup = NewsInfo.find(NewsInfo.class, "type = ?", type.toLowerCase());
+                    Collections.sort(offlineBackup, new Comparator<NewsInfo>() {
+                        @Override
+                        public int compare(NewsInfo a, NewsInfo b) {
+                            return Long.compare(b.getTflag(), a.getTflag());
+                        }
+                    });
+                }
+                Log.i("CACHE", type + offlineBackup.size());
                 offlinePage++;
-                // 数据库加载后排序
-                Collections.sort(data, new Comparator<NewsInfo>() {
-                    @Override
-                    public int compare(NewsInfo a, NewsInfo b) {
-                        return Long.compare(b.tflag, a.tflag);
-                    }
-                });
+                // 计算取出的数量
+                int start = (offlinePage - 1) * MORE_NUM;
+                int updateNum = Math.min(MORE_NUM, offlineBackup.size() - start);
+                List<NewsInfo> data = null;
                 // 更新UI
-                if (data.size() == 0) {
+                if (updateNum > 0)
+                    data = offlineBackup.subList(start, updateNum + start);
+                else {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -365,7 +371,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
             Log.i("Update", Boolean.toString(updated));
             if (updated) {
                 // 重新获取更新后的数据
-                onlinePage = 0;
+                onlinePage = 1;
                 final List<NewsInfo> newData = getCurrentPageData();
                 // 重新设置数据
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {

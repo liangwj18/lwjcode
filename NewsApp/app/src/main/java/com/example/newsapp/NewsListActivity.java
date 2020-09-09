@@ -65,4 +65,15 @@ public class NewsListActivity extends AppCompatActivity {
         currentFragment = targetFragment;
         return transaction;
     }
+
+    @Override
+    public void onBackPressed() {
+        Log.i("NewsListActivity","BackPressed");
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+            Log.i("NewsListActivity","Pop");
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

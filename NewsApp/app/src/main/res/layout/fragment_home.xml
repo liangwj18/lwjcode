@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -13,10 +14,11 @@
         <com.ogaclejapan.smarttablayout.SmartTabLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_toLeftOf="@id/channel_button"
+            android:paddingTop="10dp"
             android:id="@+id/view_pager_tab"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
+            android:layout_toLeftOf="@id/channel_button"
             android:paddingBottom="4dp"
             app:stl_defaultTabTextColor="@color/white"
             app:stl_defaultTabTextMinWidth="120dp"
@@ -26,36 +28,6 @@
             app:stl_indicatorInterpolation="smart"
             app:stl_indicatorThickness="3dp"
             app:stl_underlineColor="#00000000" />
-        <!--        <com.ogaclejapan.smarttablayout.SmartTabLayout-->
-        <!--            android:id="@+id/view_pager_tab"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_toLeftOf="@id/channel_button"-->
-        <!--            android:layout_height="48dp"-->
-        <!--            app:stl_clickable="true"-->
-        <!--            app:stl_defaultTabBackground="?attr/selectableItemBackground"-->
-        <!--            app:stl_defaultTabTextAllCaps="true"-->
-        <!--            app:stl_defaultTabTextColor="#FC000000"-->
-        <!--            app:stl_defaultTabTextHorizontalPadding="16dp"-->
-        <!--            app:stl_defaultTabTextMinWidth="0dp"-->
-        <!--            app:stl_defaultTabTextSize="12sp"-->
-        <!--            app:stl_distributeEvenly="false"-->
-        <!--            app:stl_dividerColor="#4D000000"-->
-        <!--            app:stl_dividerThickness="1dp"-->
-        <!--            app:stl_drawDecorationAfterTab="false"-->
-        <!--            app:stl_indicatorAlwaysInCenter="false"-->
-        <!--            app:stl_indicatorColor="#40C4FF"-->
-        <!--            app:stl_indicatorCornerRadius="2dp"-->
-        <!--            app:stl_indicatorGravity="bottom"-->
-        <!--            app:stl_indicatorInFront="false"-->
-        <!--            app:stl_indicatorInterpolation="smart"-->
-        <!--            app:stl_indicatorThickness="4dp"-->
-        <!--            app:stl_indicatorWidth="auto"-->
-        <!--            app:stl_indicatorWithoutPadding="false"-->
-        <!--            app:stl_overlineColor="#4D000000"-->
-        <!--            app:stl_overlineThickness="0dp"-->
-        <!--            app:stl_titleOffset="24dp"-->
-        <!--            app:stl_underlineColor="#4D000000"-->
-        <!--            app:stl_underlineThickness="1dp" />-->
 
         <ImageButton
             android:id="@+id/channel_button"
@@ -68,10 +40,22 @@
             android:src="@drawable/ic_baseline_add_24" />
     </RelativeLayout>
 
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        android:id="@+id/news_list_search_bar"
+        style="@style/MaterialSearchBarLight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:mt_searchBarColor="#F9F9F9"
+        app:mt_hint="Custom hint"
+        app:mt_suggestionsAnimationSpeed="600"
+        app:mt_maxSuggestionsCount="30"
+        app:mt_speechMode="false"
+        />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/view_pager_tab" />
+
 </LinearLayout>

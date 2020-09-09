@@ -48,10 +48,10 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         public void bindData(NewsInfo info) {
-            titleTv.setText(info.title);
-            timeTv.setText(info.time);
-            typeTv.setText(info.newsType);
-            sourceTv.setText(info.source);
+            titleTv.setText(info.getTitle());
+            timeTv.setText(info.getTime());
+            typeTv.setText(info.getNewsType());
+            sourceTv.setText(info.getSource());
         }
     }
 
@@ -96,8 +96,8 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((NewsHolder) holder).bindData(info);
             // 如果数据库查到存在，那么变灰
             if (BrowsingHistory.find(BrowsingHistory.class, "my_id = ?",
-                    mNewsList.get(position).myId).size() != 0) {
-                Log.i("PRESSED", "position = " + position + info.title.substring(0, 10));
+                    mNewsList.get(position).getMyId()).size() != 0) {
+                Log.i("PRESSED", "position = " + position + info.getTitle().substring(0, 10));
                 ((NewsHolder) holder).titleTv.setTextColor(context.getColorStateList(R.color.grey));
             } else {
                 ((NewsHolder) holder).titleTv.setTextColor(context.getColorStateList(R.color.black));
@@ -148,7 +148,8 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void updateData(List<NewsInfo> newData) {
-        mNewsList.addAll(newData);
+        if (newData != null)
+            mNewsList.addAll(newData);
         changeState(LoadingType.NORMAL);
     }
 
@@ -158,7 +159,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void itemPressed(int position) {
         // 保存浏览记录到数据库
-        BrowsingHistory history = new BrowsingHistory(mNewsList.get(position).myId);
+        BrowsingHistory history = new BrowsingHistory(mNewsList.get(position).getMyId());
         history.save();
     }
 
@@ -166,16 +167,17 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public boolean checkUpdateData(NewsInfo newData) {
         // 比较并添加数据
         NewsInfo current = mNewsList.get(0);
-        Log.i("CURRENT", current.myId);
-        Log.i("CURRENT", newData.myId);
-        if (!newData.myId.equals(current.myId))  // 字符串比较用equals
+        if (!newData.getMyId().equals(current.getMyId()))  // 字符串比较用equals
             return true;
         else
             return false;
     }
 
     public void resetData(List<NewsInfo> newData) {
-        mNewsList = newData;
+        int oldSize = mNewsList.size();
+        mNewsList.clear();
+        for (NewsInfo info : newData)
+            mNewsList.add(info);
         notifyDataSetChanged();
     }
 }
