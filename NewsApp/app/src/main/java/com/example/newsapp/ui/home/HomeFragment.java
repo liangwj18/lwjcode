@@ -241,13 +241,4 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
             pagerTab.setViewPager(viewPager);
         }
     }
-
-    private void removeKeyboard() {
-        InputMethodManager inputManager = (InputMethodManager) root
-                .getContext()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        View currentFocusedView = getActivity().getCurrentFocus();
-        inputManager.hideSoftInputFromWindow(currentFocusedView.getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
-    }
 }

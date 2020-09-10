@@ -93,12 +93,15 @@ public class WorldFragment extends Fragment {
         }
         this.root = root;
         List<String> country_list = new ArrayList<String>(listS);
+        country_list.add("请选择");
         String[] arrs = country_list.toArray(new String[country_list.size()]);
         Arrays.sort(arrs);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item, arrs);
+
         spinner.setAdapter(adapter);
+
         spinner.setVisibility(View.VISIBLE);
-        spinner.setSelection(0, false);
+        spinner.setSelection(adapter.getPosition("请选择"), false);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String Country = spinner.getSelectedItem().toString();
@@ -108,6 +111,7 @@ public class WorldFragment extends Fragment {
                 args[1] = "";
 
                 List<CountyInfo> listRet = CountyInfo.find(CountyInfo.class, " Country = ? and Province= ?", args);
+                if (listRet.size()==0) return ;
                 String datas = listRet.get(0).getDay_info();
 
                 DashboardFragment.MyDrawChart(root, datas);

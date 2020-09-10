@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.mancj.materialsearchbar.MaterialSearchBar
+        android:id="@+id/entity_search_bar"
+        style="@style/MaterialSearchBarLight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:mt_hint="Custom hint"
+        app:mt_maxSuggestionsCount="10"
+        app:mt_searchBarColor="#F9F9F9"
+        app:mt_speechMode="false"
+        app:mt_suggestionsAnimationSpeed="600" />
+
+        <LinearLayout
+            android:id="@+id/entity_search_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/entity_search_bar"
+            android:gravity="center">
+
+            <com.wang.avi.AVLoadingIndicatorView
+                android:id="@+id/entity_avi"
+                style="@style/AVLoadingIndicatorView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                app:indicatorColor="@color/blue"
+                app:indicatorName="LineScalePulseOutRapidIndicator" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/entity_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/entity_search_container"/>
+</RelativeLayout>

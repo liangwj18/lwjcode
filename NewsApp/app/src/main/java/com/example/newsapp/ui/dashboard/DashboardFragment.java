@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.example.newsapp.R;
+import com.example.newsapp.ui.dashboard.search.EntitySearchFragment;
 import com.example.newsapp.ui.home.BlankFragment;
 import com.example.newsapp.ui.home.HomeFragment;
 import com.example.newsapp.ui.home.HomeViewModel;
@@ -136,29 +137,6 @@ public class DashboardFragment extends Fragment {
                     JSONArray array = jsonSet2.getJSONArray("data");
                     String dayinfo = array.toString();
 
-                        /*
-                        List <County_Day_Info> day_infoList=new ArrayList<County_Day_Info>();
-                        for (int i=0;i<array.size();++i)
-                        {
-                            int sum_days=i+1;
-                            String dataArr=array.get(i).toString();
-                            dataArr=dataArr.substring(1,dataArr.length()-1);
-                            String[] datalist=dataArr.split(",");
-
-                            int confirmed=myParseInt(datalist[0]);
-                            int suspected=myParseInt(datalist[1]);
-                            int cured=myParseInt(datalist[2]);
-                            int dead=myParseInt(datalist[3]);
-                            int severe=myParseInt(datalist[4]);
-                            int risk=myParseInt(datalist[5]);
-                            int inc24=myParseInt(datalist[6]);
-
-                            County_Day_Info day_info=new County_Day_Info(confirmed,suspected,cured,dead,severe,risk,inc24);
-                            day_infoList.add(day_info);
-
-
-                        }*/
-
                     CountyInfo countyInfo = new CountyInfo(Country, Province, County, Begin_Time, dayinfo);
                     System.out.println(Country);
                     countyInfo.save();
@@ -195,9 +173,11 @@ public class DashboardFragment extends Fragment {
     private void initFragment() {
         Bundle listBundle = getBundle("世界疫情");
         Bundle newsBundle = getBundle("国内疫情");
+        Bundle graphBundle = getBundle("疫情图谱");
         pagers = FragmentPagerItems.with(getContext())
                 .add("世界疫情", WorldFragment.class, listBundle)
                 .add("国内疫情", DomesticFragment.class, newsBundle)
+                .add("疫情图谱", EntitySearchFragment.class,graphBundle)
                 .create();
     }
 
@@ -329,7 +309,7 @@ public class DashboardFragment extends Fragment {
 
     private void initView() {
         // 设置缓存大小
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(3);
         // 配置好Tab、viewPager和适配器
         adapter = new MyPagerAdapter(getChildFragmentManager(), pagers);
         viewPager.setAdapter(adapter);

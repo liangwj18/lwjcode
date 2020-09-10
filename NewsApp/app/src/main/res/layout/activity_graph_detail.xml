@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/graph_detail_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/white"
+        android:textSize="18dp"
+        android:text="我的"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:padding="5dp"/>
+
+    <com.ogaclejapan.smarttablayout.SmartTabLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/graph_pager_tab"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="4dp"
+        app:stl_defaultTabTextColor="@color/white"
+        app:stl_defaultTabTextMinWidth="120dp"
+        app:stl_distributeEvenly="true"
+        app:stl_indicatorColor="#40C4FF"
+        app:stl_indicatorCornerRadius="1.5dp"
+        app:stl_indicatorInterpolation="smart"
+        app:stl_indicatorThickness="3dp"
+        app:stl_underlineColor="#00000000"
+        android:background="@color/colorPrimary"
+        android:layout_below="@id/graph_detail_title"/>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/graph_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/graph_pager_tab" />
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="400dp"-->
+<!--        android:layout_height="470dp"-->
+<!--        android:orientation="vertical">-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/title_properties"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center"-->
+<!--            android:text="属性" />-->
+
+<!--        <ListView-->
+<!--            android:id="@+id/detail_properties"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="251dp">-->
+
+<!--        </ListView>-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/title_relation"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_toRightOf="@id/detail_left_container"-->
+<!--            android:gravity="center"-->
+<!--            android:text="关系"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:textSize="16sp" />-->
+
+<!--        <ListView-->
+<!--            android:id="@+id/detail_relations"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent">-->
+<!--        </ListView>-->
+<!--    </LinearLayout>-->
+
+</RelativeLayout>
