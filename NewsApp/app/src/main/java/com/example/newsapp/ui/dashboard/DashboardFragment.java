@@ -297,22 +297,22 @@ public class DashboardFragment extends Fragment {
 
         d1.setLineWidth(2.5f);
         d1.setCircleRadius(Radius);
-        d1.setColor(Color.RED);
-        d1.setCircleColor(Color.RED);
+        d1.setColor(Color.parseColor("#3498db"));
+        d1.setCircleColor(Color.parseColor("#3498db"));
         dataSets.add(d1);
 
         LineDataSet d2 = new LineDataSet(entriesCured, "Cured");
         d2.setLineWidth(2.5f);
         d2.setCircleRadius(Radius);
-        d2.setColor(Color.BLUE);
-        d2.setCircleColor(Color.BLUE);
+        d2.setColor(Color.parseColor("#2ecc71"));
+        d2.setCircleColor(Color.parseColor("#2ecc71"));
         dataSets.add(d2);
 
         LineDataSet d3 = new LineDataSet(entriesDead, "Dead");
         d3.setLineWidth(2.5f);
         d3.setCircleRadius(Radius);
-        d3.setColor(Color.GREEN);
-        d3.setCircleColor(Color.GREEN);
+        d3.setColor(Color.parseColor("#e74c3c"));
+        d3.setCircleColor(Color.parseColor("#e74c3c"));
         dataSets.add(d3);
 
         LineData linedata = new LineData(dataSets);

@@ -2,6 +2,5 @@
 <resources>
     <integer-array name="refresh_color">
         <item>@color/colorPrimary</item>
-        <item>@color/blue</item>
     </integer-array>
 </resources>

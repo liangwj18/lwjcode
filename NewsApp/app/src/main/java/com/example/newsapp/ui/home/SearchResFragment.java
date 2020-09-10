@@ -3,6 +3,7 @@ package com.example.newsapp.ui.home;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -38,6 +39,9 @@ import com.example.newsapp.R;
 import com.example.newsapp.ui.home.channel.ChannelFragment;
 import com.example.newsapp.utils.HttpsTrustManager;
 import com.orm.SugarRecord;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.openapi.IWBAPI;
+import com.sina.weibo.sdk.openapi.WBAPIFactory;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.BufferedReader;
@@ -77,6 +81,14 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
     private boolean initDone;               // 是否已经初始化
     private View root;
     private int onlinePage = 0;
+
+    //在微博开发平台为应用申请的App Key
+    private static final String APP_KY = "3702273900";
+    //在微博开放平台设置的授权回调页
+    private static final String REDIRECT_URL = "https://api.weibo.com/oauth2/default.html";
+    //在微博开放平台为应用申请的高级权限
+    private static final String SCOPE = "";
+    private IWBAPI mWBAPI;
 
 
     public static SearchResFragment newInstance(String keyWord) {
@@ -130,8 +142,17 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
         transaction.remove(parentManager.findFragmentByTag("SEARCH")).commit();
     }
 
+    private void initWeiboSDK() {
+        // 初始化微博分享
+        AuthInfo authInfo = new AuthInfo(getContext(), APP_KY, REDIRECT_URL, SCOPE);
+        mWBAPI = WBAPIFactory.createWBAPI(getContext());
+        mWBAPI.registerApp(getContext(), authInfo);
+        mWBAPI.setLoggerEnable(true);
+    }
+
     private void initView() {
         initDone = false;
+        initWeiboSDK();
         // 设置helper
         helper = new SearchHelper();
         // 设置textview
@@ -140,7 +161,7 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         // 为列表构建一个监听器，监听是否上拉加载更多
-        mAdapter = new NewsAdapter(this, getContext());
+        mAdapter = new NewsAdapter(this, getContext(), mWBAPI);
         recyclerView.setAdapter(mAdapter);
         // 给按钮添加监听
         imageButton.setOnClickListener(new View.OnClickListener() {
@@ -194,9 +215,17 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        return cm.getActiveNetworkInfo() != null &&
-                cm.getActiveNetworkInfo().isConnectedOrConnecting();
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true;
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true;
+            }  else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)){
+                return true;
+            }
+        }
+        return false;
     }
 
     private class SearchHelper implements Runnable {

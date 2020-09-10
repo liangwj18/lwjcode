@@ -1,6 +1,8 @@
 package com.example.newsapp.ui.home;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -110,7 +113,7 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
                 FragmentTransaction transaction = manager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in, R.anim.slide_out);
                 if (!channelFragment.isAdded()) {
-                    transaction.replace(android.R.id.content, channelFragment,"CHANNEL").addToBackStack("CHANNEL").commit();
+                    transaction.replace(android.R.id.content, channelFragment, "CHANNEL").addToBackStack("CHANNEL").commit();
                 } else {
                     transaction.show(channelFragment).commit();
                 }
@@ -164,6 +167,22 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
         }
     }
 
+    // 判断是否联网
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true;
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true;
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public void onSearchStateChanged(boolean enabled) {
@@ -173,12 +192,17 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
     @Override
     public void onSearchConfirmed(CharSequence text) {
         searchBar.closeSearch();
+        if (!isOnline()) {
+            // 没有联网的话
+            Toast.makeText(getContext(), "未联网无法启用搜索", Toast.LENGTH_LONG).show();
+            return;
+        }
         // TODO 开始搜索
         SearchResFragment searchResFragment = SearchResFragment.newInstance(text.toString());
         FragmentManager manager = getParentFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.search_in, R.anim.search_out);
-        transaction.replace(android.R.id.content, searchResFragment,"SEARCH").addToBackStack("SEARCH").commit();
+        transaction.replace(android.R.id.content, searchResFragment, "SEARCH").addToBackStack("SEARCH").commit();
     }
 
     @Override

@@ -1,20 +1,36 @@
 package com.example.newsapp;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
+import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.newsapp.ui.home.NewsInfo;
 import com.example.newsapp.utils.HttpsTrustManager;
+import com.sina.weibo.sdk.api.TextObject;
+import com.sina.weibo.sdk.api.WeiboMultiMessage;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.common.UiError;
+import com.sina.weibo.sdk.openapi.IWBAPI;
+import com.sina.weibo.sdk.openapi.WBAPIFactory;
+import com.sina.weibo.sdk.share.WbShareCallback;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.BufferedReader;
@@ -29,28 +45,91 @@ import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class NewsDetailActivity extends AppCompatActivity {
-    AVLoadingIndicatorView loadingIndicatorView;
-    TextView detailTitle, detailSource, detailTime, detailType, detailLink, detailContent;
-    ImageView influence_icon;
-    LinearLayout container;
-    Handler mHandler;
-    DetailHelper detailHelper;
+public class NewsDetailActivity extends AppCompatActivity implements WbShareCallback {
+    private AVLoadingIndicatorView loadingIndicatorView;
+    private TextView detailTitle, detailSource, detailTime, detailType, detailLink, detailContent;
+    private ImageView influence_icon;
+    private ImageButton shareBtn, backBtn;
+    private LinearLayout container;
+    private Handler mHandler;
+    private DetailHelper detailHelper;
+    private IWBAPI mWBAPI;
+
+    //在微博开发平台为应用申请的App Key
+    private static final String APP_KY = "3702273900";
+    //在微博开放平台设置的授权回调页
+    private static final String REDIRECT_URL = "https://api.weibo.com/oauth2/default.html";
+    //在微博开放平台为应用申请的高级权限
+    private static final String SCOPE = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_detail);
         findView();     //找到所有的TextView
+        initBtn();      //给按钮增加监听
         loadingIndicatorView.show();
         container.setVisibility(View.GONE);
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
+
+        // 初始化微博分享
+        AuthInfo authInfo = new AuthInfo(this, APP_KY, REDIRECT_URL, SCOPE);
+        mWBAPI = WBAPIFactory.createWBAPI(this);
+        mWBAPI.registerApp(this, authInfo);
+        mWBAPI.setLoggerEnable(true);
 
         // 下面构建子线程，开始读取数据
         String targetID = getIntent().getStringExtra("id");
         detailHelper = new DetailHelper(targetID);
         Log.i("URL", getString(R.string.news_detail_url) + targetID);
         new Thread(detailHelper).start();
+    }
+
+    private void initBtn() {
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        shareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doWeiboShare();
+            }
+        });
+    }
+
+    private String getShareContent() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[Title] : " + detailTitle.getText()+"\n\n");
+        builder.append("[Type] : " + detailType.getText()+"\n");
+        builder.append("[Time] : " + detailTime.getText()+"\n");
+        builder.append("[Source] : " + detailSource.getText()+"\n\n");
+        builder.append("[content] : " + detailContent.getText());
+        builder.append("\n\n来自NewsAPP客户端自动生成");
+        return builder.toString();
+    }
+
+    private void doWeiboShare() {
+        Log.i("Weibo", "Start to share");
+        WeiboMultiMessage message = new WeiboMultiMessage();
+
+        TextObject textObject = new TextObject();
+        String text = getShareContent();
+
+        // 分享文字
+        textObject.text = text;
+        message.textObject = textObject;
+        mWBAPI.shareMessage(message, true);
+    }
+
+    // 分享完后的回调
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mWBAPI.doResultIntent(data, this);
     }
 
 
@@ -83,7 +162,7 @@ public class NewsDetailActivity extends AppCompatActivity {
                 title = target.getTitle();
                 source = target.getSource();
                 originURL = target.getOriginURL();
-                Log.i("DETAIL","Load from database");
+                Log.i("DETAIL", "Load from database");
             } else {
                 // 数据库中没有再网络加载
                 try {
@@ -119,7 +198,7 @@ public class NewsDetailActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Log.i("DETAIL","Load from internet");
+                Log.i("DETAIL", "Load from internet");
             }
             // 更新UI
             updateUI();
@@ -159,7 +238,16 @@ public class NewsDetailActivity extends AppCompatActivity {
                     detailType.setText(type);
                     detailContent.setText(content);
                     String html = "<a href=\"" + originURL + "\">原文链接</a>";
-                    detailLink.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
+                    Spannable s = (Spannable) Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+                    for (URLSpan u : s.getSpans(0, s.length(), URLSpan.class)) {
+                        s.setSpan(new UnderlineSpan() {
+                            public void updateDrawState(TextPaint tp) {
+                                tp.setUnderlineText(false);
+                                tp.setColor(getColor(R.color.yellow));
+                            }
+                        }, s.getSpanStart(u), s.getSpanEnd(u), 0);
+                    }
+                    detailLink.setText(s);
                     detailLink.setMovementMethod(LinkMovementMethod.getInstance());
                     loadingIndicatorView.hide();    //隐藏加载
                     container.setVisibility(View.VISIBLE);  //显示内容
@@ -176,8 +264,26 @@ public class NewsDetailActivity extends AppCompatActivity {
         detailLink = findViewById(R.id.detail_link);
         detailContent = findViewById(R.id.detail_content);
         influence_icon = findViewById(R.id.influence_icon);
+        shareBtn = findViewById(R.id.detail_share_btn);
+        backBtn = findViewById(R.id.detail_back_btn);
 
         container = findViewById(R.id.detail_content_layout);
         loadingIndicatorView = findViewById(R.id.detail_avi);
+    }
+
+    // 􏲚􏲛WbShareCallback􏲜􏲝􏰫􏲞􏲉􏰞􏰟􏲙􏱧􏱄
+    @Override
+    public void onComplete() {
+        Toast.makeText(NewsDetailActivity.this, "􏰞􏰟􏰔􏲆分享成功", Toast.LENGTH_LONG);
+    }
+
+    @Override
+    public void onError(UiError error) {
+        Toast.makeText(NewsDetailActivity.this, "􏰞􏰟􏲟􏲠分享失败:" + error.errorMessage, Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void onCancel() {
+        Toast.makeText(NewsDetailActivity.this, "􏰞􏰟􏲉􏲊分享取消", Toast.LENGTH_SHORT);
     }
 }

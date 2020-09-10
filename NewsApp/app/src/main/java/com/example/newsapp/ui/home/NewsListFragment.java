@@ -3,6 +3,7 @@ package com.example.newsapp.ui.home;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,9 @@ import com.example.newsapp.R;
 import com.example.newsapp.ui.home.channel.ChannelFragment;
 import com.example.newsapp.utils.HttpsTrustManager;
 import com.orm.SugarRecord;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.openapi.IWBAPI;
+import com.sina.weibo.sdk.openapi.WBAPIFactory;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.BufferedReader;
@@ -51,9 +55,10 @@ import in.srain.cube.views.ptr.header.MaterialHeader;
 
 public class NewsListFragment extends Fragment implements AdapterView.OnClickListener {
     private static final String ARG_TYPE = "type";
-    private final int MORE_NUM = 10;
+    private final int MORE_NUM = 6;
     private final int UPDATE_NUM = 5;
     private final int MAX_CACHE_NUM = 1000;     //最多缓存1k条数据用于离线查看
+
     // 下拉刷新和上拉加载更多
     private final String UP = "MORE";
     private final String DOWN = "UPDATE";
@@ -74,6 +79,14 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
     private View root;
     private int onlinePage = 0;
     private int offlinePage = 0;
+
+    //在微博开发平台为应用申请的App Key
+    private static final String APP_KY = "3702273900";
+    //在微博开放平台设置的授权回调页
+    private static final String REDIRECT_URL = "https://api.weibo.com/oauth2/default.html";
+    //在微博开放平台为应用申请的高级权限
+    private static final String SCOPE = "";
+    private IWBAPI mWBAPI;
 
     public static NewsListFragment newInstance(String type) {
         NewsListFragment fragment = new NewsListFragment();
@@ -126,20 +139,26 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
         thread.start();
     }
 
+    private void initWeiboSDK() {
+        // 初始化微博分享
+        AuthInfo authInfo = new AuthInfo(getContext(), APP_KY, REDIRECT_URL, SCOPE);
+        mWBAPI = WBAPIFactory.createWBAPI(getContext());
+        mWBAPI.registerApp(getContext(), authInfo);
+        mWBAPI.setLoggerEnable(true);
+    }
+
     private void initView() {
         initDone = false;
         Log.i("TYPE", type);
         // 设置helper
         helper = new ListHelper();
-//        // 设置分割线
-//        DividerItemDecoration divider = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
-//        divider.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.list_divider));
-//        recyclerView.addItemDecoration(divider);
+        // 初始化微博
+        initWeiboSDK();
         // 初始化RecyclerView
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        // 为列表构建一个监听器，监听是否上拉加载更多
-        mAdapter = new NewsAdapter(this, getContext());
+        // 为列表构建一个监听器，监听是否上拉加载更多;另一个监听器用于分享页面
+        mAdapter = new NewsAdapter(this, getContext(), mWBAPI);
         recyclerView.setAdapter(mAdapter);
         // 给下拉刷新加载header
         final MaterialHeader header = new MaterialHeader(getContext());
@@ -215,9 +234,17 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        return cm.getActiveNetworkInfo() != null &&
-                cm.getActiveNetworkInfo().isConnectedOrConnecting();
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true;
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true;
+            }  else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)){
+                return true;
+            }
+        }
+        return false;
     }
 
     private class ListHelper implements Runnable {
@@ -377,7 +404,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), "成功刷新", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "成功刷新", Toast.LENGTH_SHORT).show();
                         mAdapter.resetData(newData);
                     }
                 }, 500);
@@ -387,7 +414,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), "已是最新", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "已是最新", Toast.LENGTH_SHORT).show();
                     }
                 }, 500);
                 mPtrFrame.refreshComplete();    //结束刷新
