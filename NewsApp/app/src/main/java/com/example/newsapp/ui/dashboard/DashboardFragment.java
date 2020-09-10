@@ -87,9 +87,9 @@ public class DashboardFragment extends Fragment {
             if (CountyInfo.count(CountyInfo.class, null, null,
                     null, null, "1") == 0) {
                 loadingData();
-                Log.i("CHART","LOADING");
-            }else{
-                Log.i("CHART","NO_LOADING");
+                Log.i("CHART", "LOADING");
+            } else {
+                Log.i("CHART", "NO_LOADING");
             }
             updateUI();
         }
@@ -173,11 +173,12 @@ public class DashboardFragment extends Fragment {
     private void initFragment() {
         Bundle listBundle = getBundle("世界疫情");
         Bundle newsBundle = getBundle("国内疫情");
-        Bundle graphBundle = getBundle("疫情图谱");
+        Bundle clusterBundle = getBundle("聚类分析");
         pagers = FragmentPagerItems.with(getContext())
                 .add("世界疫情", WorldFragment.class, listBundle)
                 .add("国内疫情", DomesticFragment.class, newsBundle)
-                .add("疫情图谱", EntitySearchFragment.class,graphBundle)
+                .add("疫情图谱", EntitySearchFragment.class)
+                .add("聚类分析", ClusterFragment.class, clusterBundle)
                 .create();
     }
 

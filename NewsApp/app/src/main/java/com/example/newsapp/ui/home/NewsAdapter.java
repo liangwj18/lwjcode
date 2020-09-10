@@ -35,7 +35,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int newsType = 1;   //表示新闻
     private final int footerType = 2; //表示底部加载提示
 
-    enum LoadingType {NORMAL, LOADING_MORE, NO_MORE}
+    public enum LoadingType {NORMAL, LOADING_MORE, NO_MORE}
 
     private LoadingType footerState = LoadingType.NORMAL;
 

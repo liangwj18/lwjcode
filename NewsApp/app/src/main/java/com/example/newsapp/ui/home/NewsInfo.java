@@ -20,6 +20,78 @@ public class NewsInfo extends SugarRecord {
 
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public long getTflag() {
+        return tflag;
+    }
+
+    public void setTflag(long tflag) {
+        this.tflag = tflag;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getOriginURL() {
+        return originURL;
+    }
+
+    public void setOriginURL(String originURL) {
+        this.originURL = originURL;
+    }
+
+    public String getMyId() {
+        return myId;
+    }
+
+    public void setMyId(String myId) {
+        this.myId = myId;
+    }
+
+    public String getNewsType() {
+        return newsType;
+    }
+
+    public void setNewsType(String newsType) {
+        this.newsType = newsType;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public NewsInfo(String id, String title, String time, String source, long tflag, String originURL, String content, String newsType, String type) {
         this.myId = id;
         this.title = title;
@@ -30,41 +102,5 @@ public class NewsInfo extends SugarRecord {
         this.content = content;
         this.newsType = newsType;
         this.type = type;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public long getTflag() {
-        return tflag;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public String getOriginURL() {
-        return originURL;
-    }
-
-    public String getMyId() {
-        return myId;
-    }
-
-    public String getNewsType() {
-        return newsType;
-    }
-
-    public String getType() {
-        return type;
     }
 }
