@@ -310,7 +310,7 @@ public class DashboardFragment extends Fragment {
 
     private void initView() {
         // 设置缓存大小
-        viewPager.setOffscreenPageLimit(3);
+        viewPager.setOffscreenPageLimit(2);
         // 配置好Tab、viewPager和适配器
         adapter = new MyPagerAdapter(getChildFragmentManager(), pagers);
         viewPager.setAdapter(adapter);
