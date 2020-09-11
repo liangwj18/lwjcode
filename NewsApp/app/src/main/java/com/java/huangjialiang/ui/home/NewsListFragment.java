@@ -317,9 +317,6 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 }
                 // 储存到本地
                 SugarRecord.saveInTx(data);
-                Log.i("SIZE", "" + data.size() + " " + type);
-                Log.i("TYPE", data.get(0).getType());
-                Log.i("DB SIZE", type + " " + NewsInfo.count(NewsInfo.class, "type=?", new String[]{type.toLowerCase()}));
                 final List<NewsInfo> newData = data;
                 // 更新UI
                 loadingUIDone(data, 500);
