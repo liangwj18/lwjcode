@@ -26,7 +26,7 @@ public class EntityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public EntityHolder(View view) {
             super(view);
-            titleTv = view.findViewById(R.id.graph_list_title);
+            titleTv = view.findViewById(R.id.cluster_type_title);
         }
 
         public void bindData(String title) {
@@ -45,7 +45,7 @@ public class EntityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.recycler_item_graph, parent, false);
+                R.layout.recycler_item_cluster, parent, false);
         view.setOnClickListener(listener);  //绑定点击监听器
         return new EntityHolder(view);
 
