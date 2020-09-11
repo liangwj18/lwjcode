@@ -125,7 +125,6 @@ public class ClusterFragment extends Fragment implements AdapterView.OnClickList
             // 解析Json，一把存入数据库
             // 如果数据库已经有了，就不存了
             if (ClusterItem.count(ClusterItem.class, null, null, null, null, "1") > 0) {
-                Log.i("ClusterItem", "Already in database : " + ClusterItem.count(ClusterItem.class));
                 return;
             } else {
                 // 读入类别

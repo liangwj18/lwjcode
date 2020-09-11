@@ -80,9 +80,6 @@ public class DashboardFragment extends Fragment {
             if (CountyInfo.count(CountyInfo.class, null, null,
                     null, null, "1") == 0) {
                 loadingData();
-                Log.i("CHART", "LOADING");
-            } else {
-                Log.i("CHART", "NO_LOADING");
             }
             updateUI();
         }
@@ -101,7 +98,8 @@ public class DashboardFragment extends Fragment {
                 // 发起请求
                 connection.connect();
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+//                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+                    return;
                 }
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream()));

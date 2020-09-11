@@ -151,7 +151,6 @@ public class PersonFragment extends Fragment implements AdapterView.OnClickListe
         private void getMore() {
             if (!initDone)
                 backup = PersonInfo.find(PersonInfo.class, "isPassedaway = ?", type);
-            Log.i("PersonFragment", "type = " + type + ", backup number = " + backup.size());
             int start = offlinePage * MORE_NUM;
             int loadNum = Math.min(MORE_NUM, backup.size() - start);
             if (loadNum > 0) {

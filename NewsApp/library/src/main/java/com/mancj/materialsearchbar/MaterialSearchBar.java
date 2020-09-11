@@ -998,7 +998,6 @@ public class MaterialSearchBar extends FrameLayout implements View.OnClickListen
 
     @Override
     public void OnItemDeleteListener(int position, View v) {
-        Log.i("Suggestion", "delete = " + position);
         if (v.getTag() instanceof String) {
             /*Order of two line should't be change,
             because should calculate the height of item first*/

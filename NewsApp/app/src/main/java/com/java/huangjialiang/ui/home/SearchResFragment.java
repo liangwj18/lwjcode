@@ -114,7 +114,7 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
     }
 
     // fragment回退
-    private void back(){
+    private void back() {
         FragmentManager parentManager = getParentFragmentManager();
         FragmentTransaction transaction = parentManager.beginTransaction();
         transaction.setCustomAnimations(R.anim.search_in, R.anim.search_out);
@@ -200,7 +200,7 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
                 return true;
             } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                 return true;
-            }  else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)){
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
                 return true;
             }
         }
@@ -230,7 +230,7 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
                 // 发起请求
                 connection.connect();
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+                    return null;
                 }
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream()));

@@ -74,7 +74,6 @@ public class ClusterAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         private void doWeiboShare() {
-            Log.i("Weibo", "Start to share");
             WeiboMultiMessage message = new WeiboMultiMessage();
 
             TextObject textObject = new TextObject();

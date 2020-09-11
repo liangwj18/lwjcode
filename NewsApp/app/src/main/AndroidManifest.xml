@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.java.huangjialiang">
 
     <!-- 权限 -->
@@ -38,10 +39,10 @@
             android:value="2" />
         <meta-data
             android:name="QUERY_LOG"
-            android:value="true" />
+            android:value="false" />
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"
-            android:value="com.example.newsapp" />
+            android:value="com.java.huangjialiang" />
     </application>
 
 </manifest>

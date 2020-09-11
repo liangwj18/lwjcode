@@ -120,7 +120,6 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
         searchBar.setOnSearchActionListener(this);
         //restore last queries from disk
         List<String> lastSearches = loadSearchSuggestionFromDisk();
-        Log.i("HISTORY", "Loading");
         if (lastSearches != null)
             searchBar.setLastSuggestions(lastSearches);
     }
@@ -134,7 +133,6 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
             while ((line = reader.readLine()) != null) {
                 builder.append(line);
             }
-            Log.i("HISTORY", builder.toString());
             return JSON.parseArray(builder.toString(), String.class);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -153,7 +151,6 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
             FileOutputStream fileOutputStream = getContext().openFileOutput(historyFileName, Context.MODE_PRIVATE);
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
             bufferedWriter.write(JSON.toJSONString(history));
-            Log.i("HISTORY", JSON.toJSONString(history));
             bufferedWriter.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -202,9 +199,6 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
     @Override
     public void onButtonClicked(int buttonCode) {
         switch (buttonCode) {
-            case MaterialSearchBar.BUTTON_NAVIGATION:
-                Log.i("BUTTON", "NAVIGATION");
-                break;
             case MaterialSearchBar.BUTTON_BACK:
                 searchBar.closeSearch();
                 break;

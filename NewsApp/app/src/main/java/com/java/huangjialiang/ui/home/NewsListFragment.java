@@ -146,7 +146,6 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
 
     private void initView() {
         initDone = false;
-        Log.i("TYPE", type);
         // 设置helper
         helper = new ListHelper();
         // 初始化微博
@@ -237,7 +236,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 return true;
             } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                 return true;
-            }  else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)){
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
                 return true;
             }
         }
@@ -273,7 +272,8 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 // 发起请求
                 connection.connect();
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+//                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+                    return null;
                 }
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream()));
@@ -315,16 +315,21 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                     // 如果超过缓存数目，那么清空表，重新添加数据
                     SugarRecord.deleteAll(NewsInfo.class);
                 }
-                Log.i("DATABASE_NUM", "" + NewsInfo.count(NewsInfo.class));
                 // 储存到本地
                 SugarRecord.saveInTx(data);
+                Log.i("SIZE", "" + data.size() + " " + type);
+                Log.i("TYPE", data.get(0).getType());
+                Log.i("DB SIZE", type + " " + NewsInfo.count(NewsInfo.class, "type=?", new String[]{type.toLowerCase()}));
                 final List<NewsInfo> newData = data;
                 // 更新UI
                 loadingUIDone(data, 500);
             } else {
                 // 没有网络，从数据库拿缓存数据
                 if (offlineBackup == null) {
-                    offlineBackup = NewsInfo.find(NewsInfo.class, "type = ?", type.toLowerCase());
+                    if (type.toLowerCase().equals("all"))
+                        offlineBackup = NewsInfo.find(NewsInfo.class, null, null);
+                    else
+                        offlineBackup = NewsInfo.find(NewsInfo.class, "type=?", type.toLowerCase());
                     Collections.sort(offlineBackup, new Comparator<NewsInfo>() {
                         @Override
                         public int compare(NewsInfo a, NewsInfo b) {
@@ -332,7 +337,6 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                         }
                     });
                 }
-                Log.i("CACHE", type + offlineBackup.size());
                 offlinePage++;
                 // 计算取出的数量
                 int start = (offlinePage - 1) * MORE_NUM;
@@ -392,11 +396,11 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
             final List<NewsInfo> data = parseJson(json);
             // 和目前Adapter的数据比对并添加
             boolean updated = mAdapter.checkUpdateData(data.get(0));
-            Log.i("Update", Boolean.toString(updated));
             if (updated) {
                 // 重新获取更新后的数据
                 onlinePage = 1;
                 final List<NewsInfo> newData = getCurrentPageData();
+                SugarRecord.saveInTx(newData);
                 // 重新设置数据
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
@@ -444,7 +448,7 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
                 String id = item.getString("_id");
                 String newsType = item.getString("type");
                 NewsInfo info = new NewsInfo(id, title, time, source, tflag, originURL,
-                        content, newsType, type);
+                        content, newsType, newsType.toLowerCase());
                 data.add(info);
             }
             return data;

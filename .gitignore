@@ -13,3 +13,4 @@
 .cxx
 **/*.json
 **/.idea
+!raw/*

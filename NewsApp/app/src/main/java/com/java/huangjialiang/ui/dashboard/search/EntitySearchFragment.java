@@ -72,7 +72,6 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        Log.i("SearchFragment", "OnCreateView");
         root = inflater.inflate(R.layout.fragment_entity_search, container, false);
         findView(root);     //初始化PtrFrame和recycleView
         initView();     //初始化界面
@@ -88,7 +87,6 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
             while ((line = reader.readLine()) != null) {
                 builder.append(line);
             }
-            Log.i("HISTORY", builder.toString());
             return JSON.parseArray(builder.toString(), String.class);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -107,7 +105,6 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
             FileOutputStream fileOutputStream = getContext().openFileOutput(historyFileName, Context.MODE_PRIVATE);
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
             bufferedWriter.write(JSON.toJSONString(history));
-            Log.i("HISTORY", JSON.toJSONString(history));
             bufferedWriter.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -151,7 +148,6 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
         searchBar.setOnSearchActionListener(this);
         //restore last queries from disk
         List<String> lastSearches = loadSearchSuggestionFromDisk();
-        Log.i("HISTORY", "Loading");
         if (lastSearches != null)
             searchBar.setLastSuggestions(lastSearches);
     }
@@ -203,9 +199,9 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
     @Override
     public void onButtonClicked(int buttonCode) {
         switch (buttonCode) {
-            case MaterialSearchBar.BUTTON_NAVIGATION:
-                Log.i("BUTTON", "NAVIGATION");
-                break;
+//            case MaterialSearchBar.BUTTON_NAVIGATION:
+//                Log.i("BUTTON", "NAVIGATION");
+//                break;
             case MaterialSearchBar.BUTTON_BACK:
                 searchBar.closeSearch();
                 break;
@@ -239,7 +235,8 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
                 // 发起请求
                 connection.connect();
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+                    return null;
+//                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
                 }
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream()));

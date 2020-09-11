@@ -71,7 +71,7 @@ public class NotificationsFragment extends Fragment {
         pagerTab.setViewPager(viewPager);
     }
 
-    private void loadData(){
+    private void loadData() {
         // 显示加载页面，开始数据加载
         loadingLayout.setVisibility(View.VISIBLE);
         detailHelper = new NotificationsFragment.DetailHelper(getString(R.string.expert_data));
@@ -102,9 +102,6 @@ public class NotificationsFragment extends Fragment {
                     null, null, "1") == 0) {
                 // 如果数据库有数据就加载
                 loadingData();
-                Log.i("CHART", "LOADING");
-            } else {
-                Log.i("CHART", "NO_LOADING");
             }
             updateUI();
         }
@@ -166,7 +163,8 @@ public class NotificationsFragment extends Fragment {
                 // 发起请求
                 connection.connect();
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+//                    Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+                    return;
                 }
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream()));

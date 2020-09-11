@@ -101,17 +101,16 @@ public class NewsDetailActivity extends AppCompatActivity implements WbShareCall
 
     private String getShareContent() {
         StringBuilder builder = new StringBuilder();
-        builder.append("[Title] : " + detailTitle.getText()+"\n\n");
-        builder.append("[Type] : " + detailType.getText()+"\n");
-        builder.append("[Time] : " + detailTime.getText()+"\n");
-        builder.append("[Source] : " + detailSource.getText()+"\n\n");
+        builder.append("[Title] : " + detailTitle.getText() + "\n\n");
+        builder.append("[Type] : " + detailType.getText() + "\n");
+        builder.append("[Time] : " + detailTime.getText() + "\n");
+        builder.append("[Source] : " + detailSource.getText() + "\n\n");
         builder.append("[content] : " + detailContent.getText());
         builder.append("\n\n来自NewsAPP客户端自动生成");
         return builder.toString();
     }
 
     private void doWeiboShare() {
-        Log.i("Weibo", "Start to share");
         WeiboMultiMessage message = new WeiboMultiMessage();
 
         TextObject textObject = new TextObject();
@@ -160,7 +159,6 @@ public class NewsDetailActivity extends AppCompatActivity implements WbShareCall
                 title = target.getTitle();
                 source = target.getSource();
                 originURL = target.getOriginURL();
-                Log.i("NEWS_DETAIL", "Load from database");
             } else {
                 // 数据库中没有再网络加载
                 try {
@@ -176,7 +174,7 @@ public class NewsDetailActivity extends AppCompatActivity implements WbShareCall
                     // 发起请求
                     connection.connect();
                     if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                        Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
+//                        Log.e("HTTPS", "[NewsDetailActivity line 80] NOT OK");
                     }
                     BufferedReader reader = new BufferedReader(
                             new InputStreamReader(connection.getInputStream()));
@@ -196,7 +194,6 @@ public class NewsDetailActivity extends AppCompatActivity implements WbShareCall
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Log.i("DETAIL", "Load from internet");
             }
             // 更新UI
             updateUI();

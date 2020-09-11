@@ -38,7 +38,6 @@ public class PropertyFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mInfo = (GraphInfo) getArguments().getSerializable(ARG_NAME);
-            Log.i("Property", mInfo.getLabel() + "\n" + mInfo.getProperties());
         }
     }
 
