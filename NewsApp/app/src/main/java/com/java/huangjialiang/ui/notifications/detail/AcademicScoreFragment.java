@@ -138,8 +138,10 @@ public class AcademicScoreFragment extends Fragment {
         private List<String> parseTags(String tags) {
             List<String> res = new ArrayList<>();
             JSONArray array = JSONObject.parseArray(tags);
-            for (int i = 0; i < array.size(); ++i) {
-                res.add(array.getString(i));
+            if (array != null) {
+                for (int i = 0; i < array.size(); ++i) {
+                    res.add(array.getString(i));
+                }
             }
             return res;
         }
@@ -148,8 +150,10 @@ public class AcademicScoreFragment extends Fragment {
         private List<String> parseTagsScore(String tagsScore) {
             List<String> res = new ArrayList<>();
             JSONArray array = JSONObject.parseArray(tagsScore);
-            for (int i = 0; i < array.size(); ++i) {
-                res.add(array.getString(i));
+            if (array != null) {
+                for (int i = 0; i < array.size(); ++i) {
+                    res.add(array.getString(i));
+                }
             }
             return res;
         }
