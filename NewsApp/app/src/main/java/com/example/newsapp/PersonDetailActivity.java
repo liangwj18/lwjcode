@@ -64,7 +64,7 @@ public class PersonDetailActivity extends AppCompatActivity implements WbShareCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_news_detail);
+        setContentView(R.layout.activity_person_detail);
         findView();     //找到所有的TextView
         initBtn();      //给按钮增加监听
         loadingIndicatorView.show();

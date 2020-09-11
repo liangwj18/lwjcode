@@ -182,6 +182,7 @@ public class ClusterFragment extends Fragment implements AdapterView.OnClickList
                 String originURL = (originarr.size() > 0) ? originarr.getString(0) : "未知URL";
                 String id = item.getString("_id");
                 String newsType = item.getString("type");
+                System.out.println(typeList);
                 ClusterItem info = new ClusterItem(id, title, time, source, tflag, originURL,
                         content, newsType, keyWordList.get(typeList.get(i)));
                 data.add(info);
