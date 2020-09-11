@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="5dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="236dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/news_list_name"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/list_Hindex_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_time_24" />
+
+                <TextView
+                    android:id="@+id/news_list_Hindex"
+                    android:layout_width="36dp"
+                    android:layout_height="22dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="4dp"
+
+                    android:layout_marginLeft="5dp"
+                    android:layout_toEndOf="@id/list_Hindex_icon"
+                    android:text="2019-09-24" />
+
+                <ImageView
+                    android:id="@+id/list_Activity_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="104dp"
+                    android:layout_marginLeft="-64dp"
+                    android:layout_toEndOf="@id/news_list_Hindex"
+                    android:layout_toRightOf="@id/news_list_Hindex"
+                    android:src="@drawable/ic_baseline_category_24" />
+
+                <TextView
+                    android:id="@+id/news_list_Activity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginLeft="145dp"
+                    android:layout_toEndOf="@id/list_Activity_icon"
+
+                    android:text="News" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/news_list_short_cut"
+                android:layout_width="235dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/news_list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:paddingLeft="10dp"
+                android:paddingTop="5dp"
+                android:paddingRight="10dp"
+                android:text="终南山"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/news_list_Picture"
+                android:layout_width="99dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="222dp"
+                android:layout_toEndOf="@id/news_list_name"
+                android:src="@drawable/ic_baseline_time_24"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <RelativeLayout
+                android:layout_width="237dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/news_list_name"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="43dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/list_Sociability_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_time_24" />
+
+                <TextView
+                    android:id="@+id/news_list_Sociability"
+                    android:layout_width="36dp"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_toEndOf="@id/list_Sociability_icon"
+                    android:layout_toRightOf="@id/list_Sociability_icon"
+                    android:text="2019-09-24" />
+
+                <ImageView
+                    android:id="@+id/list_Citations_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toEndOf="@id/news_list_Sociability"
+
+                    android:src="@drawable/ic_baseline_category_24" />
+
+                <TextView
+                    android:id="@+id/news_list_Citations"
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toEndOf="@id/list_Citations_icon"
+                    android:text="News" />
+
+                <ImageView
+                    android:id="@+id/list_Pubs_icon"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@id/news_list_Citations"
+
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginEnd="-34dp"
+                    android:layout_toEndOf="@id/news_list_Citations"
+                    android:src="@drawable/ic_baseline_source_24" />
+
+                <TextView
+                    android:id="@+id/news_list_Pubs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@id/list_Pubs_icon"
+                    android:layout_marginStart="11dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginEnd="-54dp"
+                    android:text="Hunan" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/news_list_Position"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/news_list_Affiliation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+
+        <Button
+            android:id="@+id/news_list_share_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_share"
+            android:theme="@style/PrimaryFlatButton" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

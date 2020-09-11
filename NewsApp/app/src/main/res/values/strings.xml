@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">NewsApp</string>
     <string name="title_activity_news_list">MainActivity</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">首页</string>
     <string name="title_dashboard">新冠疫情</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_notifications">知疫学者</string>
     <string name="title_test">你没有看错!8天长假赴韩中国团体游客数量为0</string>
     <string name="channel_frag_title">频道选择</string>
     <!-- TODO: Remove or change this placeholder text -->

@@ -84,8 +84,7 @@ result = kmeans.fit_predict(tfidf_weight)
 for x in result:
     st=st+str(x)+" "
 
-st=st[0:-2]
-print(st[-1])
+st=st[0:-1]
 
 with open("type.json","w",encoding="utf-8") as f:
     f.write(st)
