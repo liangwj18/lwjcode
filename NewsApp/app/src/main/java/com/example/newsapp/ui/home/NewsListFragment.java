@@ -112,7 +112,6 @@ public class NewsListFragment extends Fragment implements AdapterView.OnClickLis
             root = inflater.inflate(R.layout.fragment_news_list, container, false);
             findView(root);     //初始化PtrFrame和recycleView
             initView();     //初始化界面
-            Log.i("Create", type);
         }
         return root;
     }

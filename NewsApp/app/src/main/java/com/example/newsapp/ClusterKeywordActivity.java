@@ -3,9 +3,11 @@ package com.example.newsapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -22,136 +24,145 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.newsapp.ui.dashboard.GraphInfo;
+import com.example.newsapp.ui.dashboard.cluster.ClusterAdapter;
+import com.example.newsapp.ui.dashboard.cluster.ClusterItem;
 import com.example.newsapp.ui.home.HomeViewModel;
 import com.example.newsapp.ui.home.NewsAdapter;
 import com.example.newsapp.ui.home.NewsInfo;
 import com.example.newsapp.ui.home.NewsListFragment;
 import com.example.newsapp.ui.home.channel.ChannelFragment;
+import com.example.newsapp.utils.HttpsTrustManager;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.openapi.IWBAPI;
+import com.sina.weibo.sdk.openapi.WBAPIFactory;
 import com.squareup.picasso.Picasso;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
 import in.srain.cube.views.ptr.header.MaterialHeader;
 
-//import com.example.newsapp.ui.dashboard.GraphAdapter;
-
 public class ClusterKeywordActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String ARG_TYPE = "type";
-    private final int MORE_NUM = 10;
-    private final int UPDATE_NUM = 5;
-    private final int MAX_CACHE_NUM = 1000;     //最多缓存1k条数据
-    // 下拉刷新和上拉加载更多
-    private final String UP = "MORE";
-    private final String DOWN = "UPDATE";
-    // TODO 实现下拉加载
-    private HomeViewModel homeViewModel;
-    private PtrFrameLayout mPtrFrame;
+    private final int MORE_NUM = 6;
     private RecyclerView recyclerView;
     private LinearLayoutManager linearLayoutManager;
     private AVLoadingIndicatorView loadingIndicatorView;
-    private NewsAdapter mAdapter;
+    private TextView titleTv;
+    private ImageButton backBtn;
+    private ClusterAdapter mAdapter;
+    private ClusterHelper helper;
 
     private String type;            //代表当前Fragment对应的分类
-    private ChannelFragment channelFragment = null;
-    int lastVisiableItem;
     private boolean isLoadingMore = false;      // 表明当前是否正在加载
     private boolean isScrollDown = false;   // 表明是否正在下拉
+    private int lastVisiableItem;
     private boolean initDone;               // 是否已经初始化
-    private View root;
     private int onlinePage = 0;
-    private int offlinePage = 0;
-    private List<NewsInfo> infolist;
+
+    //在微博开发平台为应用申请的App Key
+    private static final String APP_KY = "3702273900";
+    //在微博开放平台设置的授权回调页
+    private static final String REDIRECT_URL = "https://api.weibo.com/oauth2/default.html";
+    //在微博开放平台为应用申请的高级权限
+    private static final String SCOPE = "";
+    private IWBAPI mWBAPI;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_news_list);
+        setContentView(R.layout.activity_cluster_detail);
         findView();     //找到所有的TextView
-        loadingIndicatorView.hide();
-       // container.setVisibility(View.GONE);
-
-        String Type=getIntent().getStringExtra("type");
-        String arg[]=new String[]{Type};
-         infolist = NewsInfo.find(NewsInfo.class,"Type = ?",arg);
-      //   root=findViewById(R.layout.fragment_news_list);
         initView();     //初始化界面
 
     }
 
 
+    private void findView() {
+        recyclerView = findViewById(R.id.cluster_detail_recycler_view);
+        loadingIndicatorView = findViewById(R.id.cluster_detail_avi);
+        titleTv = findViewById(R.id.cluster_detail_title);
+        backBtn = findViewById(R.id.cluster_detail_close_btn);
+    }
+
+    private void initWeiboSDK() {
+        // 初始化微博分享
+        AuthInfo authInfo = new AuthInfo(this, APP_KY, REDIRECT_URL, SCOPE);
+        mWBAPI = WBAPIFactory.createWBAPI(this);
+        mWBAPI.registerApp(this, authInfo);
+        mWBAPI.setLoggerEnable(true);
+    }
+
+    //返回更多数据
+    private void loadMoreData() {
+        Thread thread = new Thread(helper);
+        thread.start();
+    }
+
+    // 设置退出按钮
+    private void setButton() {
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+    }
+
+
     private void initView() {
         initDone = false;
+        type = getIntent().getStringExtra("type");
+        // 设置标题
+        titleTv.setText(type);
+        // 配置按钮
+        setButton();
+        // 设置微博信息
+        initWeiboSDK();
         // 设置helper
-
-        // 设置分割线
-        DividerItemDecoration divider = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        divider.setDrawable(ContextCompat.getDrawable(this, R.drawable.list_divider));
-        recyclerView.addItemDecoration(divider);
+        helper = new ClusterHelper();
         // 初始化RecyclerView
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         // 为列表构建一个监听器，监听是否上拉加载更多
-        mAdapter = new NewsAdapter(this, this,null);
+        mAdapter = new ClusterAdapter(this, this, mWBAPI);
         recyclerView.setAdapter(mAdapter);
-        // 给下拉刷新加载header
-        final MaterialHeader header = new MaterialHeader(this);
-        header.setLayoutParams(new PtrFrameLayout.LayoutParams(-1, -2));
-        header.setPadding(0, 15, 0, 15);
-        int[] colors = getResources().getIntArray(R.array.refresh_color);
-        header.setColorSchemeColors(colors);
-      //  mPtrFrame.setHeaderView(header);
-      //  mPtrFrame.addPtrUIHandler(header);
-        // 给下拉刷新加载handler
-     /*   mPtrFrame.setPtrHandler(new PtrHandler() {
-            @Override
-            public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-                if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0)
-                    return true;
-                else
-                    return false;
-            }
-
-            @Override
-            public void onRefreshBegin(PtrFrameLayout frame) {
-
-            }
-        });*/
         // 初始化数据
-    //    loadingIndicatorView.show();
-        mAdapter.resetData(infolist);
+        loadingIndicatorView.show();
+        loadMoreData();
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-              /*  if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem == mAdapter.getItemCount() - 1 && !isLoadingMore && isScrollDown) {
-                 //   isLoadingMore = true;
-                  //  mAdapter.changeState(NewsAdapter.LoadingType.LOADING_MORE);
-                   // loadMoreData();
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem == mAdapter.getItemCount() - 1 && !isLoadingMore && isScrollDown) {
+                    isLoadingMore = true;
+                    mAdapter.changeState(NewsAdapter.LoadingType.LOADING_MORE);
+                    loadMoreData();
                 }
-                int firstPos = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                if (firstPos > 0) {
-                    mPtrFrame.setEnabled(false);
-                } else {
-                    mPtrFrame.setEnabled(true);
-                }*/
             }
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-            //    mPtrFrame.setEnabled(linearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0);
-            //    lastVisiableItem = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-            //    if (dy > 0)
-             //       isScrollDown = true;
-             //   else
-             //       isScrollDown = false;
+                lastVisiableItem = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                if (dy > 0)
+                    isScrollDown = true;
+                else
+                    isScrollDown = false;
             }
         });
     }
@@ -160,21 +171,71 @@ public class ClusterKeywordActivity extends AppCompatActivity implements View.On
     public void onClick(View view) {
         int position = recyclerView.getChildLayoutPosition(view);
         //只有新闻添加了监听
-        NewsInfo info = mAdapter.getPositionItem(position);
+        ClusterItem info = mAdapter.getPositionItem(position);
         Intent intent = new Intent(this, NewsDetailActivity.class);
         intent.putExtra("id", info.getMyId());     //传入id
         startActivity(intent);
         //数据库保存，颜色变灰
+        mAdapter.itemPressed(position);
+        TextView titleTv = view.findViewById(R.id.news_list_title);
+        titleTv.setTextColor(this.getColorStateList(R.color.grey));
     }
 
-    private void findView() {
+    private class ClusterHelper implements Runnable {
+        // 下面是新闻的内容
+        private List<ClusterItem> backend;
+
+        public ClusterHelper() {
+        }
+
+        private void getInitData() {
+            backend = ClusterItem.find(ClusterItem.class, "type = ?",
+                    ClusterKeywordActivity.this.type);
+        }
 
 
-          //  mPtrFrame = findViewById(R.id.ptrFrameLayout);
-            recyclerView = findViewById(R.id.recyclerView);
-            loadingIndicatorView = findViewById(R.id.list_avi);
+        // 获取更多
+        private void getMore() {
+            int start = onlinePage * MORE_NUM;
+            int num = Math.min(backend.size() - start, MORE_NUM);
+            if (num > 0) {
+                onlinePage++;
+                // 更新UI
+                loadingUIDone(backend.subList(start, start + num), 500);
+            } else {
+                // 划到底了
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.changeState(NewsAdapter.LoadingType.NO_MORE);
+                    }
+                });
+                loadingUIDone(backend.subList(start, start + num), 1000);
+            }
+        }
 
+        // 更新UI界面
+        private void loadingUIDone(final List<ClusterItem> data, int delay) {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.updateData(data);
+                    if (!initDone) {
+                        loadingIndicatorView.hide();
+                        initDone = true;
+                    }
+                    isLoadingMore = false;
+                    recyclerView.smoothScrollBy(0, -50);    // 划一些上去
+                }
+            }, delay);
+        }
 
-
+        @Override
+        public void run() {
+            if (!initDone) {
+                getInitData();
+            }
+            getMore();
+        }
     }
 }

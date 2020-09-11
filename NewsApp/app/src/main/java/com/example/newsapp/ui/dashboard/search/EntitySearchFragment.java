@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -58,7 +59,7 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
         MaterialSearchBar.OnSearchActionListener {
 
     private RecyclerView recyclerView;
-    private LinearLayoutManager linearLayoutManager;
+    private GridLayoutManager gridLayoutManager;
     private LinearLayout containerLayout;
     private AVLoadingIndicatorView loadingIndicatorView;
     private MaterialSearchBar searchBar;
@@ -147,8 +148,8 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
         // 关闭加载动画
         loadingIndicatorView.hide();
         // 初始化RecyclerView
-        linearLayoutManager = new LinearLayoutManager(this.getActivity());
-        recyclerView.setLayoutManager(linearLayoutManager);
+        gridLayoutManager = new GridLayoutManager(this.getActivity(), 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
         // 为列表构建一个监听器，监听是否上拉加载更多
         mAdapter = new EntityAdapter(this, getContext());
         recyclerView.setAdapter(mAdapter);
@@ -167,7 +168,6 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
     public void onClick(View view) {
         int position = recyclerView.getChildLayoutPosition(view);
         GraphInfo info = mAdapter.getPositionItem(position);
-        Log.i("EntitySearch", "Click position = " + position);
         // 打开详情页面
         Intent intent = new Intent(getActivity(), GraphDetailActivity.class);
         intent.putExtra("info", info);

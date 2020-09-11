@@ -1,4 +1,4 @@
-package com.example.newsapp.ui.dashboard.search;
+package com.example.newsapp.ui.dashboard.cluster;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,15 +16,15 @@ import com.example.newsapp.ui.dashboard.GraphInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<GraphInfo> mInfoList;
+public class TypeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private List<String> mTypeList;
     private AdapterView.OnClickListener listener;   //点击监听器
     private Context context;
 
-    public static class EntityHolder extends RecyclerView.ViewHolder {
+    public static class TypeHolder extends RecyclerView.ViewHolder {
         private TextView titleTv;
 
-        public EntityHolder(View view) {
+        public TypeHolder(View view) {
             super(view);
             titleTv = view.findViewById(R.id.cluster_type_title);
         }
@@ -34,8 +34,8 @@ public class EntityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public EntityAdapter(AdapterView.OnClickListener listener, Context context) {
-        mInfoList = new ArrayList<>();
+    public TypeAdapter(AdapterView.OnClickListener listener, Context context) {
+        mTypeList = new ArrayList<>();
         this.listener = listener;
         this.context = context;
     }
@@ -47,30 +47,27 @@ public class EntityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         View view = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.recycler_item_cluster, parent, false);
         view.setOnClickListener(listener);  //绑定点击监听器
-        return new EntityHolder(view);
-
+        return new TypeHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof EntityHolder) {
-            ((EntityHolder) holder).bindData(mInfoList.get(position).getLabel());
-        }
+        ((TypeHolder) holder).bindData(mTypeList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return mInfoList.size();
+        return mTypeList.size();
     }
 
-    public GraphInfo getPositionItem(int position) {
-        return mInfoList.get(position);
+    public String getPositionItem(int position) {
+        return mTypeList.get(position);
     }
 
-    public void updateData(List<GraphInfo> initData) {
+    public void updateData(List<String> initData) {
         // 每次对应着刷新
-        mInfoList.clear();
-        mInfoList.addAll(initData);
+        mTypeList.clear();
+        mTypeList.addAll(initData);
         notifyDataSetChanged();
     }
 }

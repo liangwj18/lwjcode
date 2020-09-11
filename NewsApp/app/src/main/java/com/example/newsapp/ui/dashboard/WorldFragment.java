@@ -39,11 +39,8 @@ import java.util.Map;
 
 public class WorldFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "name";
 
-    // TODO: Rename and change types of parameters
     private String name;
     Spinner spinner;
     View root;
@@ -52,14 +49,6 @@ public class WorldFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment BlankFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static WorldFragment newInstance(String param1) {
         WorldFragment fragment = new WorldFragment();
         Bundle args = new Bundle();
@@ -82,8 +71,6 @@ public class WorldFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.fragment_world_channel, container, false);
-        TextView textView = root.findViewById(R.id.text_world_channel);
-        textView.setText("查询国家");
 
         spinner = root.findViewById(R.id.spinner);
         List<CountyInfo> list = CountyInfo.listAll(CountyInfo.class);
@@ -93,7 +80,6 @@ public class WorldFragment extends Fragment {
         }
         this.root = root;
         List<String> country_list = new ArrayList<String>(listS);
-        country_list.add("请选择");
         String[] arrs = country_list.toArray(new String[country_list.size()]);
         Arrays.sort(arrs);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item, arrs);
@@ -101,7 +87,6 @@ public class WorldFragment extends Fragment {
         spinner.setAdapter(adapter);
 
         spinner.setVisibility(View.VISIBLE);
-        spinner.setSelection(adapter.getPosition("请选择"), false);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String Country = spinner.getSelectedItem().toString();
@@ -111,7 +96,7 @@ public class WorldFragment extends Fragment {
                 args[1] = "";
 
                 List<CountyInfo> listRet = CountyInfo.find(CountyInfo.class, " Country = ? and Province= ?", args);
-                if (listRet.size()==0) return ;
+                if (listRet.size() == 0) return;
                 String datas = listRet.get(0).getDay_info();
 
                 DashboardFragment.MyDrawChart(root, datas);
@@ -122,7 +107,7 @@ public class WorldFragment extends Fragment {
                 // TODO Auto-generated method stub
             }
         });
-
+        spinner.setSelection(0, false);
         return root;
     }
 }

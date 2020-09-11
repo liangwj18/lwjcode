@@ -81,7 +81,6 @@ public class NewsDetailActivity extends AppCompatActivity implements WbShareCall
         // 下面构建子线程，开始读取数据
         String targetID = getIntent().getStringExtra("id");
         detailHelper = new DetailHelper(targetID);
-        Log.i("URL", getString(R.string.news_detail_url) + targetID);
         new Thread(detailHelper).start();
     }
 
@@ -162,7 +161,7 @@ public class NewsDetailActivity extends AppCompatActivity implements WbShareCall
                 title = target.getTitle();
                 source = target.getSource();
                 originURL = target.getOriginURL();
-                Log.i("DETAIL", "Load from database");
+                Log.i("NEWS_DETAIL", "Load from database");
             } else {
                 // 数据库中没有再网络加载
                 try {

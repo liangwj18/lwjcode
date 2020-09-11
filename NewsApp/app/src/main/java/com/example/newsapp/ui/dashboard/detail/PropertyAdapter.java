@@ -66,7 +66,6 @@ public class PropertyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 Picasso.get().load(imageURL).into(imageView);
             else
                 imageView.setVisibility(View.GONE);
-            Log.i("Property", "img = " + imageURL);
         }
     }
 
@@ -99,7 +98,6 @@ public class PropertyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder instanceof HeaderHolder) {
             ((HeaderHolder) holder).bindData(mInfo.getImg(), mInfo.getInfo());
         } else if (holder instanceof PropertyHolder) {
-            Log.i("Property", "position = " + position);
             ((PropertyHolder) holder).bindData(keyList.get(position - 1), propertyList.get(position - 1));
         }
     }

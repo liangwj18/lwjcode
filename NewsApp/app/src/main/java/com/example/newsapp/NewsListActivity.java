@@ -68,10 +68,10 @@ public class NewsListActivity extends AppCompatActivity  {
 
     @Override
     public void onBackPressed() {
-        Log.i("NewsListActivity","BackPressed");
+        Log.i("NewsListActivity","Handle BackPressed");
         if (getFragmentManager().getBackStackEntryCount() > 0) {
             getFragmentManager().popBackStack();
-            Log.i("NewsListActivity","Pop");
+            Log.i("NewsListActivity","Handle Pop");
         } else {
             super.onBackPressed();
         }
