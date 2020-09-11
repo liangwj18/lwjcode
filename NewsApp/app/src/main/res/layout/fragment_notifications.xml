@@ -9,7 +9,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
 
-        android:id="@+id/view_pager_tab"
+        android:id="@+id/person_page_tab"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:paddingTop="10dp"
@@ -25,10 +25,9 @@
         android:background="@color/colorPrimary"/>
 
     <RelativeLayout
-        android:id="@+id/chart_loading_layout"
+        android:id="@+id/person_loading_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +36,7 @@
             android:gravity="center">
 
             <com.wang.avi.AVLoadingIndicatorView
-                android:id="@+id/chart_avi"
+                android:id="@+id/person_avi"
                 style="@style/AVLoadingIndicatorView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -57,7 +56,7 @@
 
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewpager"
+        android:id="@+id/person_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/view_pager_tab" />
