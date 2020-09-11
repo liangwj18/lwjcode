@@ -1,9 +1,6 @@
 package com.example.newsapp.ui.notifications;
 
-import android.app.Person;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,50 +9,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.newsapp.PersonDetailActivity;
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.openapi.IWBAPI;
 import com.sina.weibo.sdk.openapi.WBAPIFactory;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 //import com.example.newsapp.newsDetailActivity;
 import com.example.newsapp.R;
-import com.example.newsapp.ui.notifications.NotificationsViewModel;
 
-import com.example.newsapp.ui.notifications.PersonInfo;
-import com.example.newsapp.ui.home.channel.ChannelFragment;
-import com.example.newsapp.utils.HttpsTrustManager;
-import com.orm.SugarRecord;
 import com.wang.avi.AVLoadingIndicatorView;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
-import in.srain.cube.views.ptr.header.MaterialHeader;
 
 public class PersonFragment extends Fragment implements AdapterView.OnClickListener {
     private static final String ARG_TYPE = "type";

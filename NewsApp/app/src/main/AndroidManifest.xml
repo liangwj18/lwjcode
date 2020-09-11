@@ -18,7 +18,6 @@
         <activity android:name=".NewsDetailActivity"></activity>
         <activity android:name=".ClusterKeywordActivity"></activity>
         <activity android:name=".GraphDetailActivity"></activity>
-        <activity android:name=".PersonDetailActivity"></activity>
         <activity
             android:name=".NewsListActivity"
             android:label="@string/title_activity_news_list" />
