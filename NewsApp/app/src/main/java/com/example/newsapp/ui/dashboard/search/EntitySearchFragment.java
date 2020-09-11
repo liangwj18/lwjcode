@@ -167,7 +167,6 @@ public class EntitySearchFragment extends Fragment implements AdapterView.OnClic
     public void onClick(View view) {
         int position = recyclerView.getChildLayoutPosition(view);
         GraphInfo info = mAdapter.getPositionItem(position);
-        Log.i("EntitySearch", "Click position = " + position);
         // 打开详情页面
         Intent intent = new Intent(getActivity(), GraphDetailActivity.class);
         intent.putExtra("info", info);

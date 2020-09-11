@@ -8,9 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
@@ -29,13 +26,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.example.newsapp.R;
+import com.example.newsapp.ui.dashboard.cluster.ClusterFragment;
 import com.example.newsapp.ui.dashboard.search.EntitySearchFragment;
-import com.example.newsapp.ui.home.BlankFragment;
-import com.example.newsapp.ui.home.HomeFragment;
-import com.example.newsapp.ui.home.HomeViewModel;
 import com.example.newsapp.ui.home.MyPagerAdapter;
-import com.example.newsapp.ui.home.NewsListFragment;
-import com.example.newsapp.ui.home.channel.ChannelFragment;
 import com.example.newsapp.utils.HttpsTrustManager;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
@@ -209,10 +202,6 @@ public class DashboardFragment extends Fragment {
             day_infoList.add(day_info);
         }
 
-
-        System.out.println(day_infoList.get(0));
-        //ArrayList<County_Day_Info> data=new ArrayList<County_Day_Info>(tmp);
-
         LineChart chart = (LineChart) (root.findViewById(R.id.mLineChar));
         Description description = new Description();//描述信息
         description.setText("疫情发生天数");
@@ -239,8 +228,8 @@ public class DashboardFragment extends Fragment {
         xAxis.setTextColor(Color.BLACK);//X轴文字颜色
         xAxis.setTextSize(12f);//X轴文字大小
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);//X轴文字显示位置
-        xAxis.setSpaceMin(1f);//左空白区大小
-        xAxis.setSpaceMax(1f);//右空白区大小
+        xAxis.setSpaceMin(.4f);//左空白区大小
+        xAxis.setSpaceMax(.4f);//右空白区大小
 //左y轴配置
         YAxis lyAxis = chart.getAxisLeft();
         lyAxis.setEnabled(true);//是否可用
@@ -256,9 +245,10 @@ public class DashboardFragment extends Fragment {
         lyAxis.setAxisLineColor(Color.BLACK);//坐标线颜色
         lyAxis.setTextColor(Color.BLACK);//左侧文字颜色
         lyAxis.setTextSize(12f);//左侧文字大小
+        lyAxis.setAxisMinimum(-0.0f);
 //右y轴配置
         YAxis ryAxis = chart.getAxisRight();
-        ryAxis.setEnabled(true);//是否可用
+        ryAxis.setEnabled(false);//是否可用
 //标签配置
         Legend legend = chart.getLegend();
         legend.setEnabled(true);//是否可用
@@ -272,28 +262,40 @@ public class DashboardFragment extends Fragment {
             entriesCured.add(new Entry(i + 1, day_infoList.get(i).getCured()));
             entriesDead.add(new Entry(i + 1, day_infoList.get(i).getDead()));
         }
+
+        float radius = 1f;
+
         LineDataSet d1 = new LineDataSet(entriesConfirmed, "Confirmed");
-
-        float Radius = 1f;
-
         d1.setLineWidth(2.5f);
-        d1.setCircleRadius(Radius);
         d1.setColor(Color.parseColor("#3498db"));
-        d1.setCircleColor(Color.parseColor("#3498db"));
+        d1.setDrawCircles(false);
+        d1.setCubicIntensity(0.2f);
+        d1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        d1.setDrawFilled(true);
+        d1.setFillColor(Color.parseColor("#3498db"));
         dataSets.add(d1);
 
         LineDataSet d2 = new LineDataSet(entriesCured, "Cured");
         d2.setLineWidth(2.5f);
-        d2.setCircleRadius(Radius);
+        d2.setDrawCircles(false);
         d2.setColor(Color.parseColor("#2ecc71"));
         d2.setCircleColor(Color.parseColor("#2ecc71"));
+        d2.setCubicIntensity(0.2f);
+        d2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        d2.setDrawFilled(true);
+        d2.setFillColor(Color.parseColor("#2ecc71"));
         dataSets.add(d2);
 
         LineDataSet d3 = new LineDataSet(entriesDead, "Dead");
         d3.setLineWidth(2.5f);
-        d3.setCircleRadius(Radius);
+        d3.setDrawCircles(false);
         d3.setColor(Color.parseColor("#e74c3c"));
         d3.setCircleColor(Color.parseColor("#e74c3c"));
+        d3.setCubicIntensity(0.2f);
+        d3.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        d3.setDrawFilled(true);
+        d3.setFillColor(Color.parseColor("#e74c3c"));
+        d3.setFillAlpha(200);
         dataSets.add(d3);
 
         LineData linedata = new LineData(dataSets);

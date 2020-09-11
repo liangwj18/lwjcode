@@ -303,7 +303,6 @@ public class MaterialSearchBar extends FrameLayout implements View.OnClickListen
             Field field = TextView.class.getDeclaredField("mEditor");
             field.setAccessible(true);
             Object editor = field.get(searchEdit);
-
             field = TextView.class.getDeclaredField("mCursorDrawableRes");
             field.setAccessible(true);
             int cursorDrawableRes = field.getInt(searchEdit);

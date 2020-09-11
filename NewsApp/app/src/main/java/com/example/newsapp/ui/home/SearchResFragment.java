@@ -109,7 +109,6 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        Log.i("SearchFragment", "OnCreateView");
         root = inflater.inflate(R.layout.fragment_search_res, container, false);
         findView(root);     //初始化PtrFrame和recycleView
         initView();     //初始化界面
@@ -117,7 +116,7 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
     }
 
 
-    //初始化PtrFrame和recycleView
+    //查找view
     private void findView(View root) {
         recyclerView = root.findViewById(R.id.search_recycler_view);
         loadingIndicatorView = root.findViewById(R.id.search_avi);
@@ -131,11 +130,8 @@ public class SearchResFragment extends Fragment implements AdapterView.OnClickLi
         thread.start();
     }
 
-
-
     // fragment回退
     private void back(){
-        Log.i("SearchFragment","CLICK");
         FragmentManager parentManager = getParentFragmentManager();
         FragmentTransaction transaction = parentManager.beginTransaction();
         transaction.setCustomAnimations(R.anim.search_in, R.anim.search_out);

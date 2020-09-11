@@ -49,7 +49,7 @@ android {
         implementation 'com.ogaclejapan.smarttablayout:utils-v4:2.0.0@aar'
         implementation 'com.github.satyan:sugar:1.5'        //数据库
         implementation 'com.sina.weibo.sdk:core:10.9.0:openDefaultRelease@aar'  //微博分享
-        implementation 'com.squareup.picasso:picasso:2.71828'       // TODO 这是啥？
+        implementation 'com.squareup.picasso:picasso:2.71828'       // 加载网络图片
     }
 }
 

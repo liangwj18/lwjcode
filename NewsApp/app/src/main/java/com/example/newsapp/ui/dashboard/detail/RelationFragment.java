@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,14 +41,12 @@ public class RelationFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mInfo = (GraphInfo) getArguments().getSerializable(ARG_NAME);
-            Log.i("Relation", mInfo.getLabel() + "\n" + mInfo.getRelations());
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_relation, container, false);
         findView(root);
         initView();
@@ -57,23 +57,41 @@ public class RelationFragment extends Fragment implements View.OnClickListener {
         recyclerView = root.findViewById(R.id.relation_recycler_view);
     }
 
+    private void loadData(){
+        // 开启新线程初始化数据
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 解析数据
+                final List<RelationInfo> relationInfoList = new ArrayList<>();
+                JSONArray relarray = JSONObject.parseArray(mInfo.getRelations());
+                for (int i = 0; i < relarray.size(); ++i) {
+                    JSONObject obj = relarray.getJSONObject(i);
+                    RelationInfo item = new RelationInfo(obj.getString("label"), obj.getString("url"),
+                            obj.getString("relation"), obj.getBoolean("forward"));
+                    relationInfoList.add(item);
+                }
+                // 通知UI
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.updateData(relationInfoList);
+                    }
+                });
+            }
+        }).start();
+    }
+
     private void initView() {
-        // TODO 新线程初始化数据
-        List<RelationInfo> relationInfoList = new ArrayList<>();
-        JSONArray relarray = JSONObject.parseArray(mInfo.getRelations());
-        for (int i = 0; i < relarray.size(); ++i) {
-            JSONObject obj = relarray.getJSONObject(i);
-            RelationInfo item = new RelationInfo(obj.getString("label"), obj.getString("url"),
-                    obj.getString("relation"), obj.getBoolean("forward"));
-            relationInfoList.add(item);
-        }
         // 设置适配器
         adapter = new RelationAdapter(this, getContext());
         recyclerView.setAdapter(adapter);
-        adapter.updateData(relationInfoList);
         // 设置布局管理
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+        // 初始化数据
+        loadData();
     }
 
     @Override

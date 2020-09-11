@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +15,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.newsapp.R;
 import com.example.newsapp.ui.dashboard.GraphInfo;
+import com.example.newsapp.ui.dashboard.RelationInfo;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -56,21 +60,38 @@ public class PropertyFragment extends Fragment {
         recyclerView = root.findViewById(R.id.property_recycler_view);
     }
 
+    private void loadData(){
+        // 开启新线程初始化数据
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 解析数据
+                final List<String> key = new ArrayList<>();
+                final List<String> property = new ArrayList<>();
+                JSONObject proset = JSONObject.parseObject(mInfo.getProperties());
+                for (Map.Entry<String, Object> entry : proset.entrySet()) {
+                    key.add(entry.getKey());
+                    property.add(entry.getValue().toString());
+                }
+                // 通知UI
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.updateData(key, property);
+                    }
+                });
+            }
+        }).start();
+    }
+
     private void initView() {
-        // TODO 开新线程初始化，尤其是图片
-        // 加载属性
-        List<String> key = new ArrayList<>();
-        List<String> property = new ArrayList<>();
-        JSONObject proset = JSONObject.parseObject(mInfo.getProperties());
-        for (Map.Entry<String, Object> entry : proset.entrySet()) {
-            key.add(entry.getKey());
-            property.add(entry.getValue().toString());
-        }
         // 初始化recyclerview的adapter
         adapter = new PropertyAdapter(mInfo, getContext());
         recyclerView.setAdapter(adapter);
-        adapter.updateData(key, property);
         linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
+        // 加载属性数据
+        loadData();
     }
 }

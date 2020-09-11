@@ -44,11 +44,11 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 
 public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearchActionListener {
+
     private HomeViewModel homeViewModel;
     private FragmentManager fragmentManager;
-    View root;
+    private View root;
     private ImageButton channelButton;
-
     private MyPagerAdapter adapter;
     private FragmentPagerItems pagers;
     private SmartTabLayout pagerTab;
@@ -107,7 +107,6 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
         channelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i("CLICK", "LIST_F");
                 channelFragment = (channelFragment != null) ? channelFragment : new ChannelFragment(new RefreshHandler());
                 FragmentManager manager = getParentFragmentManager();
                 FragmentTransaction transaction = manager.beginTransaction();
@@ -197,7 +196,6 @@ public class HomeFragment extends Fragment implements MaterialSearchBar.OnSearch
             Toast.makeText(getContext(), "未联网无法启用搜索", Toast.LENGTH_LONG).show();
             return;
         }
-        // TODO 开始搜索
         SearchResFragment searchResFragment = SearchResFragment.newInstance(text.toString());
         FragmentManager manager = getParentFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();

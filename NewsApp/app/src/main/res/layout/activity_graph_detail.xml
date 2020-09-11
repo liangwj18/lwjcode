@@ -13,16 +13,15 @@
         android:text="我的"
         android:gravity="center"
         android:textStyle="bold"
-        android:padding="5dp"/>
+        android:paddingTop="10dp" />
 
     <com.ogaclejapan.smarttablayout.SmartTabLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/graph_pager_tab"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="4dp"
+        android:layout_height="50dp"
+        android:paddingBottom="2dp"
         app:stl_defaultTabTextColor="@color/white"
         app:stl_defaultTabTextMinWidth="120dp"
         app:stl_distributeEvenly="true"
