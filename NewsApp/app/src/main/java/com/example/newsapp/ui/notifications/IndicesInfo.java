@@ -6,16 +6,18 @@ import android.os.Parcelable;
 import com.orm.SugarRecord;
 
 
-public class Indices_Info extends SugarRecord implements Parcelable {
+public class IndicesInfo extends SugarRecord {
 
     /*
     @Column这个注解意思是说你想强制按照你的规定的名字来创建表中对应的字段名字，所以这里的skuId在Goods表中的字段名就不是默认的sku_id了，而是你自己给的sku_ID
     @Ignore这个注解强调这个属性在表中不要创建对应的字段
 
      */
-    int activity,citations,diveristy,gindex,hindex,newStar,pubs,risingStar,sociability;
+    float activity, diveristy, newStar, risingStar, sociability;
+    int citations, gindex, hindex, pubs;
 
-    public Indices_Info(int activity, int citations, int diveristy, int gindex, int hindex, int newStar, int pubs, int risingStar, int sociability) {
+    public IndicesInfo(float activity, int citations, float diveristy, int gindex, int hindex,
+                       float newStar, int pubs, float risingStar, float sociability) {
         this.activity = activity;
         this.citations = citations;
         this.diveristy = diveristy;
@@ -28,31 +30,19 @@ public class Indices_Info extends SugarRecord implements Parcelable {
     }
 
 
-    protected Indices_Info(Parcel in) {
+    protected IndicesInfo(Parcel in) {
 
     }
 
-    public Indices_Info() {
+    public IndicesInfo() {
 
     }
 
-    public static final Creator<Indices_Info> CREATOR = new Creator<Indices_Info>() {
-        @Override
-        public Indices_Info createFromParcel(Parcel in) {
-            return new Indices_Info(in);
-        }
-
-        @Override
-        public Indices_Info[] newArray(int size) {
-            return new Indices_Info[size];
-        }
-    };
-
-    public int getActivity() {
+    public float getActivity() {
         return activity;
     }
 
-    public void setActivity(int activity) {
+    public void setActivity(float activity) {
         this.activity = activity;
     }
 
@@ -64,11 +54,11 @@ public class Indices_Info extends SugarRecord implements Parcelable {
         this.citations = citations;
     }
 
-    public int getDiveristy() {
+    public float getDiveristy() {
         return diveristy;
     }
 
-    public void setDiveristy(int diveristy) {
+    public void setDiveristy(float diveristy) {
         this.diveristy = diveristy;
     }
 
@@ -88,11 +78,11 @@ public class Indices_Info extends SugarRecord implements Parcelable {
         this.hindex = hindex;
     }
 
-    public int getNewStar() {
+    public float getNewStar() {
         return newStar;
     }
 
-    public void setNewStar(int newStar) {
+    public void setNewStar(float newStar) {
         this.newStar = newStar;
     }
 
@@ -104,38 +94,21 @@ public class Indices_Info extends SugarRecord implements Parcelable {
         this.pubs = pubs;
     }
 
-    public int getRisingStar() {
+    public float getRisingStar() {
         return risingStar;
     }
 
-    public void setRisingStar(int risingStar) {
+    public void setRisingStar(float risingStar) {
         this.risingStar = risingStar;
     }
 
-    public int getSociability() {
+    public float getSociability() {
         return sociability;
     }
 
-    public void setSociability(int sociability) {
+    public void setSociability(float sociability) {
         this.sociability = sociability;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-       // dest.writeString(Title);
-        //dest.writeString(number);
-        //dest.writeString(author);
-    }
-
-    @Override
-    public String toString() {
-        return "i am Indices_Info";
-       // return getId()+"/"+getAuthor()+"/"+getTitle()+"/"+getNumber();
-    }
 }
 

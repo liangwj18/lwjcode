@@ -8,32 +8,30 @@ import com.orm.dsl.Column;
 import com.orm.dsl.Unique;
 
 
-public class PersonInfo extends SugarRecord implements Parcelable {
+public class PersonInfo extends SugarRecord {
 
     /*
     @Column这个注解意思是说你想强制按照你的规定的名字来创建表中对应的字段名字，所以这里的skuId在Goods表中的字段名就不是默认的sku_id了，而是你自己给的sku_ID
     @Ignore这个注解强调这个属性在表中不要创建对应的字段
 
      */
-    @Unique String myID;
+    @Unique
+    String myID;
 
-
-    String Avatar,name,name_zh;
+    String Avatar, name, name_zh;
     boolean bind;
-    Indices_Info indices;
-    int num_followed,num_viewed;
+    IndicesInfo indices;
+    int num_followed, num_viewed;
 
-
-
-    Profile_Info profile_info;
+    ProfileInfo profile_info;
     int score;
     String sourcetype;
-    String tags,tags_score;
-    int myindex,tab;
-    @Column(name="isPassedaway")
+    String tags, tags_score;
+    int myindex, tab;
+    @Column(name = "isPassedaway")
     String isPassedaway;
 
-    public PersonInfo(String avatar,  boolean bind,String myID, Indices_Info indices,String name, String name_zh,  int num_followed, int num_viewed, Profile_Info profile_info, int score, String sourcetype, String tags, String tags_score, int myindex, int tab, String isPassedaway) {
+    public PersonInfo(String avatar, boolean bind, String myID, IndicesInfo indices, String name, String name_zh, int num_followed, int num_viewed, ProfileInfo profile_info, int score, String sourcetype, String tags, String tags_score, int myindex, int tab, String isPassedaway) {
         Avatar = avatar;
         this.myID = myID;
         this.name = name;
@@ -116,11 +114,11 @@ public class PersonInfo extends SugarRecord implements Parcelable {
         this.isPassedaway = isPassedaway;
     }
 
-    public Indices_Info getIndices() {
+    public IndicesInfo getIndices() {
         return indices;
     }
 
-    public void setIndices(Indices_Info indices) {
+    public void setIndices(IndicesInfo indices) {
         this.indices = indices;
     }
 
@@ -180,11 +178,11 @@ public class PersonInfo extends SugarRecord implements Parcelable {
         this.tags_score = tags_score;
     }
 
-    public Profile_Info getProfile_info() {
+    public ProfileInfo getProfile_info() {
         return profile_info;
     }
 
-    public void setProfile_info(Profile_Info profile_info) {
+    public void setProfile_info(ProfileInfo profile_info) {
         this.profile_info = profile_info;
     }
 
@@ -195,36 +193,5 @@ public class PersonInfo extends SugarRecord implements Parcelable {
     public PersonInfo() {
     }
 
-    public static final Creator<PersonInfo> CREATOR = new Creator<PersonInfo>() {
-        @Override
-        public PersonInfo createFromParcel(Parcel in) {
-            return new PersonInfo(in);
-        }
-
-        @Override
-        public PersonInfo[] newArray(int size) {
-            return new PersonInfo[size];
-        }
-    };
-
-
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-       // dest.writeString(Title);
-        //dest.writeString(number);
-        //dest.writeString(author);
-    }
-
-    @Override
-    public String toString() {
-        return "i am Personinfo";
-       // return getId()+"/"+getAuthor()+"/"+getTitle()+"/"+getNumber();
-    }
 }
 

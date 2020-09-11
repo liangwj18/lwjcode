@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
-        android:id="@+id/graph_detail_title"
+        android:id="@+id/person_detail_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
@@ -18,7 +18,7 @@
     <com.ogaclejapan.smarttablayout.SmartTabLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/graph_pager_tab"
+        android:id="@+id/person_detail_pager_tab"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingBottom="2dp"
@@ -31,11 +31,11 @@
         app:stl_indicatorThickness="3dp"
         app:stl_underlineColor="#00000000"
         android:background="@color/colorPrimary"
-        android:layout_below="@id/graph_detail_title"/>
+        android:layout_below="@id/person_detail_title"/>
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/graph_view_pager"
+        android:id="@+id/person_detail_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/graph_pager_tab" />
+        android:layout_below="@id/person_detail_pager_tab" />
 </RelativeLayout>

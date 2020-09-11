@@ -32,7 +32,6 @@ import java.util.Map;
 
 public class GraphDetailActivity extends AppCompatActivity {
     TextView graphTitleTv;
-    ImageView influence_icon;
     SmartTabLayout tabLayout;
     ViewPager viewPager;
 
@@ -50,7 +49,6 @@ public class GraphDetailActivity extends AppCompatActivity {
 
     private void findView() {
         graphTitleTv = findViewById(R.id.graph_detail_title);
-        influence_icon = findViewById(R.id.influence_icon);
         tabLayout = findViewById(R.id.graph_pager_tab);
         viewPager = findViewById(R.id.graph_view_pager);
     }

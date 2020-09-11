@@ -6,17 +6,17 @@ import android.os.Parcelable;
 import com.orm.SugarRecord;
 
 
-public class Profile_Info extends SugarRecord implements Parcelable {
+public class ProfileInfo extends SugarRecord {
 
     /*
     @Column这个注解意思是说你想强制按照你的规定的名字来创建表中对应的字段名字，所以这里的skuId在Goods表中的字段名就不是默认的sku_id了，而是你自己给的sku_ID
     @Ignore这个注解强调这个属性在表中不要创建对应的字段
 
      */
-    String address,affiliation,affiliation_zh,bio,edu,email,email_cr;
-    String emails_u,fax,homepage,note,phone,position,work;
+    String address, affiliation, affiliation_zh, bio, edu, email, email_cr;
+    String emails_u, fax, homepage, note, phone, position, work;
 
-    public Profile_Info(String address, String affiliation, String affiliation_zh, String bio, String edu, String email, String email_cr, String emails_u, String fax, String homepage, String note, String phone, String position, String work) {
+    public ProfileInfo(String address, String affiliation, String affiliation_zh, String bio, String edu, String email, String email_cr, String emails_u, String fax, String homepage, String note, String phone, String position, String work) {
         this.address = address;
         this.affiliation = affiliation;
         this.affiliation_zh = affiliation_zh;
@@ -145,40 +145,12 @@ public class Profile_Info extends SugarRecord implements Parcelable {
         this.emails_u = emails_u;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    protected ProfileInfo(Parcel in) {
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-       // dest.writeString(Title);
-        //dest.writeString(number);
-        //dest.writeString(author);
-    }  
-    protected Profile_Info(Parcel in) {
-    }
-
-    public Profile_Info() {
+    public ProfileInfo() {
 
     }
 
-    public static final Creator<Profile_Info> CREATOR = new Creator<Profile_Info>() {
-        @Override
-        public Profile_Info createFromParcel(Parcel in) {
-            return new Profile_Info(in);
-        }
-
-        @Override
-        public Profile_Info[] newArray(int size) {
-            return new Profile_Info[size];
-        }
-    };
-
-    @Override
-    public String toString() {
-        return "i am Profile_Info";
-       // return getId()+"/"+getAuthor()+"/"+getTitle()+"/"+getNumber();
-    }
 }
 
